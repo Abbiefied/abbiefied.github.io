@@ -2,6 +2,6 @@
 title: "Ganiyat Adekunle"
 ---
 
-This is a Quarto website.
+Hi! I am Ganiyat. I am from Nigeria. I studied Computing at Glasgow Caledonian University. I hope to gain strong data science skills from the program
 
 To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
