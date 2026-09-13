@@ -4,20 +4,41 @@
     "href": "blog.html",
     "title": "Blog",
     "section": "",
-    "text": "My first weeks in MDS\n\n\n\n\n\n\n\n\nSep 10, 2026\n\n\nYour Name\n\n\n\n\n\nNo matching items"
+    "text": "My first weeks in MDS\n\n\n\n\n\n\n\n\nSep 10, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "about.html",
     "href": "about.html",
     "title": "About",
     "section": "",
-    "text": "About this site"
+    "text": "My journey has taken me across several different fields and places. I studied Computing at Glasgow Caledonian University, where I developed a strong interest in technology and its potential to solve real-world problems. My studies exposed me to areas such as machine learning, natural language processing, human-computer interaction, software engineering, and data analysis.\nAlongside my academic journey, I have spent several years building a fashion business. What started as an interest in fashion design grew into an entrepreneurial journey that expanded from Nigeria to Mauritius. Running a business taught me lessons that are difficult to learn from a classroom, including how to understand customers, work with limited resources, adapt to uncertainty, and turn ideas into practical solutions.\nOne of the areas where these interests began to overlap was sustainability. The fashion industry produces enormous amounts of textile waste, and I became increasingly interested in how data and technology could help businesses make better decisions and reduce waste."
   },
   {
     "objectID": "index.html",
     "href": "index.html",
     "title": "Ganiyat Adekunle",
     "section": "",
-    "text": "Hi! I am Ganiyat. I am from Nigeria. I studied Computing at Glasgow Caledonian University. I hope to gain strong data science skills from the program\nTo learn more about Quarto websites visit https://quarto.org/docs/websites."
+    "text": "Hi! I am Ganiyat. I am from Nigeria. I am a data science student at the University of British Columbia with a background in computing, artificial intelligence, and fashion entrepreneurship. Before starting my Master of Data Science, I studied Computing at Glasgow Caledonian University, where I developed interests in machine learning, natural language processing, human-computer interaction, and software development."
+  },
+  {
+    "objectID": "about.html#background",
+    "href": "about.html#background",
+    "title": "About",
+    "section": "",
+    "text": "My journey has taken me across several different fields and places. I studied Computing at Glasgow Caledonian University, where I developed a strong interest in technology and its potential to solve real-world problems. My studies exposed me to areas such as machine learning, natural language processing, human-computer interaction, software engineering, and data analysis.\nAlongside my academic journey, I have spent several years building a fashion business. What started as an interest in fashion design grew into an entrepreneurial journey that expanded from Nigeria to Mauritius. Running a business taught me lessons that are difficult to learn from a classroom, including how to understand customers, work with limited resources, adapt to uncertainty, and turn ideas into practical solutions.\nOne of the areas where these interests began to overlap was sustainability. The fashion industry produces enormous amounts of textile waste, and I became increasingly interested in how data and technology could help businesses make better decisions and reduce waste."
+  },
+  {
+    "objectID": "about.html#outside-of-data-science",
+    "href": "about.html#outside-of-data-science",
+    "title": "About",
+    "section": "Outside of Data Science",
+    "text": "Outside of Data Science\nI have always had interests outside technology. Fashion remains an important part of my life, particularly pattern drafting, designing clothes, and thinking about how creativity and technology can work together. I enjoy learning new things online and can easily spend time watching videos about the brain, neuroscience, AI, or an entirely new topic that catches my attention.\nI also enjoy quieter activities. I am more comfortable with a good learning session, a walk, or exploring a new place than with a packed social schedule. Since moving to Vancouver, I am looking forward to discovering more of the city and finding peaceful places where I can walk, reflect, and recharge.\nFor me, data science is not just about algorithms and code. It is another tool for understanding the world, asking better questions, and building solutions that can make a difference."
+  },
+  {
+    "objectID": "about.html#why-data-science",
+    "href": "about.html#why-data-science",
+    "title": "About",
+    "section": "Why Data Science",
+    "text": "Why Data Science\nMy interest in data science comes from wanting to move beyond simply building technology and understand how data can be used to make better decisions. During my computing studies, projects involving machine learning and AI showed me how computational methods can be applied to complex problems.\nMy final-year project, AdaptEd: Harnessing AI for Multimodal and Personalized Learning, brought several of these interests together. I developed an AI-enhanced learning platform designed to support personalized and multimodal learning in higher education. Working on the project introduced me to recommender systems, natural language processing, retrieval-augmented generation, and multimodal AI, while also teaching me how challenging it can be to turn an idea into a working system.\nAt UBC, I am interested in developing a stronger foundation in statistics, programming, machine learning, and data analysis. I am particularly interested in human-centred AI and in using data science to address problems that have a meaningful social or environmental impact."
   }
 ]

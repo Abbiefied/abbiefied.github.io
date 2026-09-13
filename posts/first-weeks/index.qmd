@@ -1,5 +1,7 @@
 ---
 title: "My first weeks in MDS"
-author: "Your Name"
+author: "Ganiyat Adekunle"
 date: 2026-09-10
+---
+![Orientation day on campus.](orientation.jpeg)
 ---

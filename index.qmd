@@ -2,6 +2,5 @@
 title: "Ganiyat Adekunle"
 ---
 
-Hi! I am Ganiyat. I am from Nigeria. I studied Computing at Glasgow Caledonian University. I hope to gain strong data science skills from the program
+Hi! I am Ganiyat. I am from Nigeria. I am a data science student at the University of British Columbia with a background in computing, artificial intelligence, and fashion entrepreneurship. Before starting my Master of Data Science, I studied Computing at Glasgow Caledonian University, where I developed interests in machine learning, natural language processing, human-computer interaction, and software development.
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
