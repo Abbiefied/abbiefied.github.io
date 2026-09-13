@@ -18,7 +18,7 @@ An AI-enhanced learning platform for personalised and multimodal learning in hig
 
 <div class="project-card">
 
-![Project 2](images/purpledsky.png)
+![Purple Sky Weather App](images/purpledsky.png)
 
 ### Purple Sky
 
