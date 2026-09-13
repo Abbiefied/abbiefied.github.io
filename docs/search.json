@@ -7,11 +7,11 @@
     "text": "Scavenger Hunt at UBC\n\n\nStarting my Master of Data Science at UBC has been an exciting and slightly overwhelming experience. After spending years studying computing and working on projects involving AI and software development, I was looking forward to finally taking a deeper dive into data science. Orientation and the first days of classes made the transition feel much more real, especially seeing the campus, meeting people from different backgrounds, and beginning this new chapter in Vancouver.\nOne of the things that has surprised me most is how quickly the program moves. There is a lot to learn, and even familiar topics can feel different when approached from a data science perspective. My first weeks have already involved working with probability, statistics, programming, and data, and I am learning that understanding the reasoning behind a solution is just as important as getting the code to work.\nI am still finding my rhythm, but I am excited about what lies ahead. I want to become more confident with the mathematical and statistical foundations of data science while continuing to explore machine learning and AI. For now, I am taking things one week at a time and enjoying the process of becoming a data scientist."
   },
   {
-    "objectID": "blog.html",
-    "href": "blog.html",
-    "title": "Blog",
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Ganiyat Adekunle",
     "section": "",
-    "text": "My First Weeks in MDS\n\n\n\n\n\n\n\n\nSep 13, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\nNo matching items"
+    "text": "Hi! I am Ganiyat. I am from Nigeria. I am a data science student at the University of British Columbia with a background in computing, artificial intelligence, and fashion entrepreneurship. Before starting my Master of Data Science, I studied Computing at Glasgow Caledonian University, where I developed interests in machine learning, natural language processing, human-computer interaction, and software development."
   },
   {
     "objectID": "about.html",
@@ -42,10 +42,17 @@
     "text": "Outside of Data Science\nI have always had interests outside technology. Fashion remains an important part of my life, particularly pattern drafting, designing clothes, and thinking about how creativity and technology can work together. I enjoy learning new things online and can easily spend time watching videos about the brain, neuroscience, AI, or an entirely new topic that catches my attention.\nI also enjoy quieter activities. I am more comfortable with a good learning session, a walk, or exploring a new place than with a packed social schedule. Since moving to Vancouver, I am looking forward to discovering more of the city and finding peaceful places where I can walk, reflect, and recharge.\nFor me, data science is not just about algorithms and code. It is another tool for understanding the world, asking better questions, and building solutions that can make a difference."
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Ganiyat Adekunle",
+    "objectID": "blog.html",
+    "href": "blog.html",
+    "title": "Blog",
     "section": "",
-    "text": "Hi! I am Ganiyat. I am from Nigeria. I am a data science student at the University of British Columbia with a background in computing, artificial intelligence, and fashion entrepreneurship. Before starting my Master of Data Science, I studied Computing at Glasgow Caledonian University, where I developed interests in machine learning, natural language processing, human-computer interaction, and software development."
+    "text": "My First Weeks in MDS\n\n\n\n\n\n\n\n\nSep 13, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "portfolio.html",
+    "href": "portfolio.html",
+    "title": "Portfolio",
+    "section": "",
+    "text": "AdaptEd\n\n\n\nAdaptEd\nAn AI-enhanced learning platform for personalised and multimodal learning in higher education.\nView on GitHub\n\n\n\n\n\n\nProject 2\n\n\n\nPurple Sky\nA a utilitarian weather application targeting users who require minimal weather information for their day-to-day navigation and schedule. The app provides current weather data, a 3-day weather forecast, air quality information, a weather map with weather icon markers and quality data, the ability to compare weather data between two countries, and the option to add a weather widget to the home screen and weather notifications to the notification bar.\nView on GitHub"
   }
 ]
