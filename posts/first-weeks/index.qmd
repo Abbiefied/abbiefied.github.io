@@ -8,7 +8,7 @@ about:
   image: ../../images/profile.jpg
   image-width: 6em
 ---
-![Scavenger Hunt at UBC](orientation1.jpeg){fig-cap="Scavenger Hunt: Martha Piper Plaza at UBC"}
+![Scavenger Hunt at UBC](orientation1.jpeg){fig-cap="Scavenger Hunt: Martha Piper at UBC"}
 
 Starting my Master of Data Science at UBC has been an exciting and slightly overwhelming experience. After spending years studying computing and working on projects involving AI and software development, I was looking forward to finally taking a deeper dive into data science. Orientation and the first days of classes made the transition feel much more real, especially seeing the campus, meeting people from different backgrounds, and beginning this new chapter in Vancouver.
 
