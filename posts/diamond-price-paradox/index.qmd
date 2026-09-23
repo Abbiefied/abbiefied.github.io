@@ -1,0 +1,149 @@
+---
+title: "Why do 'worse' diamonds cost more?"
+author: "Ganiyat Adekunle"
+date: "2026-09-23"
+categories: [r, regression]
+---
+
+Diamonds are graded on how clear they are, how well they are cut and how colourless they are. You would expect a better grade to mean a higher price. When I looked at the prices of nearly 54,000 diamonds, I found the opposite: the clearest diamonds had some of the *lowest* typical prices. This post works out why.
+
+Data: [`diamonds`](https://ggplot2.tidyverse.org/reference/diamonds.html), a dataset of prices and attributes of almost 54,000 round-cut diamonds, distributed with the ggplot2 package (MIT licence). Wickham, H. (2016). *ggplot2: Elegant Graphics for Data Analysis*. Springer-Verlag New York.
+
+The data ships inside ggplot2, so there is no data file to download.
+
+```{r}
+#| label: setup
+#| message: false
+#| warning: false
+library(ggplot2)
+library(dplyr)
+```
+
+## The data
+
+```{r}
+#| label: look-at-data
+dim(diamonds)
+head(diamonds)
+```
+
+Each row is one diamond. Price is in US dollars, and weight is in carats (one carat is 0.2 grams). Clarity is graded on eight levels, from I1 (visible flaws, the worst) through SI2, SI1, VS2, VS1, VVS2 and VVS1 up to IF (internally flawless, the best). ggplot2 stores clarity in that order, so every table and chart below runs from worst to best.
+
+## The puzzle
+
+```{r}
+#| label: tbl-clarity
+#| tbl-cap: "Number of diamonds, median price and median weight for each clarity grade, from worst (I1) to best (IF)."
+clarity_summary <- diamonds |>
+  group_by(clarity) |>
+  summarise(
+    diamonds = n(),
+    median_price = median(price),
+    median_carat = median(carat)
+  )
+
+knitr::kable(
+  clarity_summary,
+  col.names = c("Clarity", "Diamonds", "Median price (US$)", "Median carat"),
+  format.args = list(big.mark = ",")
+)
+```
+
+@tbl-clarity shows the puzzle. The typical flawless (IF) diamond sells for about \$1,080, while the typical SI2 diamond, two steps up from the bottom grade, sells for about \$4,070. Taken at face value, the market seems to pay almost four times more for a worse stone.
+
+The last column hints at the answer. The median IF diamond weighs 0.35 carats, while the median SI2 diamond weighs just over 1 carat. The "worse" diamonds are much bigger.
+
+## Size drives price
+
+```{r}
+#| label: fig-price-carat
+#| fig-cap: "Price against weight for all 53,940 diamonds, both on log scales. The orange line is a straight-line fit."
+ggplot(diamonds, aes(x = carat, y = price)) +
+  geom_point(alpha = 0.05, size = 0.5, colour = "#2563eb") +
+  geom_smooth(method = "lm", formula = y ~ x, colour = "#c2410c", linewidth = 0.8) +
+  scale_x_log10() +
+  scale_y_log10(labels = scales::label_dollar()) +
+  labs(x = "Carat (log scale)", y = "Price (log scale)") +
+  theme_minimal()
+```
+
+@fig-price-carat shows that weight is by far the biggest driver of price. On log scales the relationship is close to a straight line, which means price grows by a steady *percentage* for every percentage increase in weight.
+
+```{r}
+#| label: fig-carat-clarity
+#| fig-cap: "Weight of diamonds in each clarity grade, from worst (I1) to best (IF)."
+ggplot(diamonds, aes(x = clarity, y = carat)) +
+  geom_boxplot(fill = "#dbeafe", outlier.alpha = 0.1) +
+  labs(x = "Clarity (worst to best)", y = "Carat") +
+  theme_minimal()
+```
+
+@fig-carat-clarity completes the picture: the typical diamond gets smaller as clarity improves. Large, flawless stones are rare, so the best-graded diamonds in this dataset tend to be small ones. Because size matters so much for price, comparing clarity grades directly is really comparing big diamonds with small ones.
+
+## Comparing like with like
+
+To separate clarity from size, I fit a model that predicts price from weight alone.
+
+```{r}
+#| label: size-model
+size_model <- lm(log(price) ~ log(carat), data = diamonds)
+
+coef(size_model)
+summary(size_model)$r.squared
+```
+
+Weight alone explains about 93% of the variation in log price. The slope of about 1.68 means that doubling a diamond's weight multiplies its price by roughly 3.2 (2 to the power of 1.68), so a 1-carat diamond costs far more than two half-carat ones.
+
+The model's residuals show how much more or less each diamond costs than a typical diamond of the *same weight*. Grouping them by clarity answers the real question.
+
+```{r}
+#| label: fig-clarity-premium
+#| fig-cap: "How much more or less each clarity grade costs than a typical diamond of the same weight (median, in %). Orange bars cost more, blue bars cost less."
+clarity_premium <- diamonds |>
+  mutate(residual = resid(size_model)) |>
+  group_by(clarity) |>
+  summarise(premium = (exp(median(residual)) - 1) * 100)
+
+ggplot(clarity_premium, aes(x = clarity, y = premium, fill = premium > 0)) +
+  geom_col(width = 0.6) +
+  geom_hline(yintercept = 0, colour = "grey60") +
+  geom_text(
+    aes(label = sprintf("%+.0f%%", premium), vjust = ifelse(premium > 0, -0.4, 1.3)),
+    size = 3.2,
+    colour = "#333333"
+  ) +
+  scale_fill_manual(values = c(`TRUE` = "#c2410c", `FALSE` = "#2563eb"), guide = "none") +
+  labs(x = "Clarity (worst to best)", y = "Price vs same-weight typical (%)") +
+  theme_minimal()
+```
+
+Once weight is taken into account, the puzzle disappears. @fig-clarity-premium climbs steadily from worst to best: an I1 diamond sells for about 47% less than a typical diamond of the same weight, while a flawless IF diamond sells for about 36% more. Clarity does matter, and in the direction you would expect. Size was hiding it.
+
+The same thing happens with cut.
+
+```{r}
+#| label: tbl-cut-premium
+#| tbl-cap: "Median price difference compared with a typical diamond of the same weight, by cut."
+diamonds |>
+  mutate(residual = resid(size_model)) |>
+  group_by(cut) |>
+  summarise(
+    diamonds = n(),
+    median_price = median(price),
+    premium_pct = round((exp(median(residual)) - 1) * 100, 1)
+  ) |>
+  knitr::kable(
+    col.names = c("Cut", "Diamonds", "Median price (US$)", "Premium vs same weight (%)"),
+    format.args = list(big.mark = ",")
+  )
+```
+
+In @tbl-cut-premium, Ideal-cut diamonds have the lowest median price of any cut, about \$1,810. After adjusting for weight, though, they carry a premium of about 6%, while Fair-cut diamonds sell for about 20% less than a typical diamond of the same weight.
+
+## What I found
+
+- Looked at on its own, better clarity seems to go with *lower* prices. The flawless grade has one of the lowest median prices.
+- The reason is size. Weight drives price more than anything else, and the best-graded diamonds in this dataset tend to be small.
+- Once weight is held fixed, better clarity and better cut both come with higher prices, just as you would expect.
+
+This is an example of **confounding**: a third variable (weight) is linked to both the grade and the price, and it hides the real relationship between them. The lesson reaches well beyond diamonds. Before trusting a simple comparison between groups, it is worth asking whether the groups differ in some other way that matters.
