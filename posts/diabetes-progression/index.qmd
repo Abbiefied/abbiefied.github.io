@@ -1,0 +1,45 @@
+---
+title: "What predicts how diabetes progresses in a year?"
+author: "Ganiyat Adekunle"
+date: "2026-09-23"
+categories: [python, regression]
+jupyter: python3
+---
+Data: [Diabetes dataset](https://www4.stat.ncsu.edu/~boos/var.select/diabetes.html)
+from Efron, Hastie, Johnstone and Tibshirani (2004), "Least Angle Regression",
+*Annals of Statistics* 32(2), distributed with
+[scikit-learn](https://scikit-learn.org/stable/datasets/toy_dataset.html#diabetes-dataset)
+(BSD-3-Clause licence).
+
+```{python}
+#| label: setup
+#| message: false
+#| warning: false
+import sys
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.datasets import load_diabetes
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import r2_score
+```
+## The data
+
+```{python}
+#| label: load-data
+raw = load_diabetes(scaled=False, as_frame=True)
+
+diabetes = raw.frame.rename(columns={
+    "bp": "blood_pressure",
+    "s1": "total_cholesterol",
+    "s2": "ldl",
+    "s3": "hdl",
+    "s4": "chol_hdl_ratio",
+    "s5": "log_triglycerides",
+    "s6": "blood_sugar",
+    "target": "progression",
+})
+
+print(diabetes.shape)
+diabetes.head()
+```

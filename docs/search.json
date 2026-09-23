@@ -46,7 +46,7 @@
     "href": "blog.html",
     "title": "Blog",
     "section": "",
-    "text": "My First Weeks in MDS\n\n\n\n\n\n\n\n\nSep 13, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\nNo matching items"
+    "text": "What predicts how diabetes progresses in a year?\n\n\n\n\n\n\n\n\nSep 23, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\n\n\n\n\n\n\n\nMy First Weeks in MDS\n\n\n\n\n\n\n\n\nSep 13, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "portfolio.html",
@@ -54,5 +54,19 @@
     "title": "Portfolio",
     "section": "",
     "text": "AdaptEd\n\n\n\nAdaptEd\nAn AI-enhanced learning platform for personalised and multimodal learning in higher education. The project uses Python for backend services and PHP for Moodle customizations. Machine learning models (SVD, TF-IDF, Random Forest) are used for content recommendations. Natural language processing techniques are employed for the chatbot and content summarization. The facebook/bart-large-cnn model from HuggingFace Transformers is used for text summarization.\nView on GitHub\n\n\n\n\n\n\nPurple Sky Weather App\n\n\n\nPurple Sky\nA a utilitarian weather application targeting users who require minimal weather information for their day-to-day navigation and schedule. The app provides current weather data, a 3-day weather forecast, air quality information, a weather map with weather icon markers and quality data, the ability to compare weather data between two countries, and the option to add a weather widget to the home screen and weather notifications to the notification bar.\nView on GitHub"
+  },
+  {
+    "objectID": "posts/diabetes-progression/index.html",
+    "href": "posts/diabetes-progression/index.html",
+    "title": "What predicts how diabetes progresses in a year?",
+    "section": "",
+    "text": "Data: Diabetes dataset from Efron, Hastie, Johnstone and Tibshirani (2004), “Least Angle Regression”, Annals of Statistics 32(2), distributed with scikit-learn (BSD-3-Clause licence).\nimport sys\nimport pandas as pd\nimport matplotlib.pyplot as plt\nfrom sklearn.datasets import load_diabetes\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.model_selection import train_test_split\nfrom sklearn.metrics import r2_score"
+  },
+  {
+    "objectID": "posts/diabetes-progression/index.html#the-data",
+    "href": "posts/diabetes-progression/index.html#the-data",
+    "title": "What predicts how diabetes progresses in a year?",
+    "section": "The data",
+    "text": "The data\n\nraw = load_diabetes(scaled=False, as_frame=True)\n\ndiabetes = raw.frame.rename(columns={\n    \"bp\": \"blood_pressure\",\n    \"s1\": \"total_cholesterol\",\n    \"s2\": \"ldl\",\n    \"s3\": \"hdl\",\n    \"s4\": \"chol_hdl_ratio\",\n    \"s5\": \"log_triglycerides\",\n    \"s6\": \"blood_sugar\",\n    \"target\": \"progression\",\n})\n\nprint(diabetes.shape)\ndiabetes.head()\n\n(442, 11)\n\n\n\n\n\n\n\n\n\nage\nsex\nbmi\nblood_pressure\ntotal_cholesterol\nldl\nhdl\nchol_hdl_ratio\nlog_triglycerides\nblood_sugar\nprogression\n\n\n\n\n0\n59.0\n2.0\n32.1\n101.0\n157.0\n93.2\n38.0\n4.0\n4.8598\n87.0\n151.0\n\n\n1\n48.0\n1.0\n21.6\n87.0\n183.0\n103.2\n70.0\n3.0\n3.8918\n69.0\n75.0\n\n\n2\n72.0\n2.0\n30.5\n93.0\n156.0\n93.6\n41.0\n4.0\n4.6728\n85.0\n141.0\n\n\n3\n24.0\n1.0\n25.3\n84.0\n198.0\n131.4\n40.0\n5.0\n4.8903\n89.0\n206.0\n\n\n4\n50.0\n1.0\n23.0\n101.0\n192.0\n125.4\n52.0\n4.0\n4.2905\n80.0\n135.0"
   }
 ]
