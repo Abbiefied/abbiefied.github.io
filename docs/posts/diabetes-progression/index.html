@@ -112,10 +112,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 <script src="https://cdn.jsdelivr.net/npm/requirejs@2.3.6/require.min.js" integrity="sha384-c9c+LnTbwQ3aujuU7ULEPVvgLs+Fn6fJUvIGTsuu1ZcCf11fiEubah0ttpca4ntM sha384-6V1/AdqZRWk1KAlWbKBlGhN7VG4iE/yAZcO6NZPMF8od0vukrvr0tg4qY6NSrItx" crossorigin="anonymous"></script>
 
-
-
 <script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
-
 
 
 <link rel="stylesheet" href="../../styles.css">
@@ -171,6 +168,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#the-data" id="toc-the-data" class="nav-link active" data-scroll-target="#the-data">The data</a></li>
+  <li><a href="#what-the-patients-look-like" id="toc-what-the-patients-look-like" class="nav-link" data-scroll-target="#what-the-patients-look-like">What the patients look like</a></li>
+  <li><a href="#which-measurements-go-with-faster-progression" id="toc-which-measurements-go-with-faster-progression" class="nav-link" data-scroll-target="#which-measurements-go-with-faster-progression">Which measurements go with faster progression?</a></li>
+  <li><a href="#the-two-strongest-signals-together" id="toc-the-two-strongest-signals-together" class="nav-link" data-scroll-target="#the-two-strongest-signals-together">The two strongest signals together</a></li>
+  <li><a href="#how-much-can-we-actually-predict" id="toc-how-much-can-we-actually-predict" class="nav-link" data-scroll-target="#how-much-can-we-actually-predict">How much can we actually predict?</a></li>
+  <li><a href="#what-i-found" id="toc-what-i-found" class="nav-link" data-scroll-target="#what-i-found">What I found</a></li>
   </ul>
 </nav>
     </div>
@@ -212,18 +214,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<p>Diabetes does not progress at the same pace for everyone. Some patients get noticeably worse within a year, while others barely change. In this post I use a classic medical dataset of 442 patients to ask a simple question: which routine measurements taken at a check-up best predict how much the disease will progress over the following year?</p>
 <p>Data: <a href="https://www4.stat.ncsu.edu/~boos/var.select/diabetes.html">Diabetes dataset</a> from Efron, Hastie, Johnstone and Tibshirani (2004), “Least Angle Regression”, <em>Annals of Statistics</em> 32(2), distributed with <a href="https://scikit-learn.org/stable/datasets/toy_dataset.html#diabetes-dataset">scikit-learn</a> (BSD-3-Clause licence).</p>
+<p>The dataset ships inside scikit-learn, so there is no data file to download and nothing extra to install.</p>
 <div id="setup" class="cell" data-message="false" data-execution_count="1">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> sys</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> load_diabetes</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> train_test_split</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.metrics <span class="im">import</span> r2_score</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.datasets <span class="im">import</span> load_diabetes</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.linear_model <span class="im">import</span> LinearRegression</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> sklearn.model_selection <span class="im">import</span> KFold, cross_val_score</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <section id="the-data" class="level2">
 <h2 class="anchored" data-anchor-id="the-data">The data</h2>
+<p>scikit-learn stores the blood test columns under the names <code>s1</code> to <code>s6</code>, which tell a reader nothing. I load the unscaled version, so every value is in its original units, and give each column a name that says what it measures.</p>
 <div id="cell-load-data" class="cell" data-execution_count="2">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>raw <span class="op">=</span> load_diabetes(scaled<span class="op">=</span><span class="va">False</span>, as_frame<span class="op">=</span><span class="va">True</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -341,6 +344,289 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </div>
+<p>Each row is one patient. The first ten columns were measured at the start of the study: age, sex, body mass index (BMI), average blood pressure and six blood test results. The last column, <code>progression</code>, is a score of how far the disease advanced one year later. Higher means worse. Sex is coded as 1 or 2, and the original source does not say which is which, so I treat it as a label rather than read anything into it.</p>
+</section>
+<section id="what-the-patients-look-like" class="level2">
+<h2 class="anchored" data-anchor-id="what-the-patients-look-like">What the patients look like</h2>
+<div class="cell" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>summary <span class="op">=</span> (</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    diabetes</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    .describe()</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    .T[[<span class="st">"mean"</span>, <span class="st">"std"</span>, <span class="st">"min"</span>, <span class="st">"max"</span>]]</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    .<span class="bu">round</span>(<span class="dv">1</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>summary</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="tbl-summary" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="3">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;1: Baseline measurements for the 442 patients.
+</figcaption>
+<div aria-describedby="tbl-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display" data-execution_count="3">
+<div>
+
+
+<table class="dataframe cell caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">mean</th>
+<th data-quarto-table-cell-role="th">std</th>
+<th data-quarto-table-cell-role="th">min</th>
+<th data-quarto-table-cell-role="th">max</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">age</th>
+<td>48.5</td>
+<td>13.1</td>
+<td>19.0</td>
+<td>79.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">sex</th>
+<td>1.5</td>
+<td>0.5</td>
+<td>1.0</td>
+<td>2.0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">bmi</th>
+<td>26.4</td>
+<td>4.4</td>
+<td>18.0</td>
+<td>42.2</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">blood_pressure</th>
+<td>94.6</td>
+<td>13.8</td>
+<td>62.0</td>
+<td>133.0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">total_cholesterol</th>
+<td>189.1</td>
+<td>34.6</td>
+<td>97.0</td>
+<td>301.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">ldl</th>
+<td>115.4</td>
+<td>30.4</td>
+<td>41.6</td>
+<td>242.4</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">hdl</th>
+<td>49.8</td>
+<td>12.9</td>
+<td>22.0</td>
+<td>99.0</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">chol_hdl_ratio</th>
+<td>4.1</td>
+<td>1.3</td>
+<td>2.0</td>
+<td>9.1</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">log_triglycerides</th>
+<td>4.6</td>
+<td>0.5</td>
+<td>3.3</td>
+<td>6.1</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">blood_sugar</th>
+<td>91.3</td>
+<td>11.5</td>
+<td>58.0</td>
+<td>124.0</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">progression</th>
+<td>152.1</td>
+<td>77.1</td>
+<td>25.0</td>
+<td>346.0</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p><a href="#tbl-summary" class="quarto-xref">Table&nbsp;1</a> shows a wide mix of patients, aged from 19 to 79, with an average BMI of about 26. The outcome varies a lot too. Progression scores run from 25 to 346, with an average of around 152. That spread is what makes the question worth asking: something is separating the patients who get much worse from those who do not.</p>
+</section>
+<section id="which-measurements-go-with-faster-progression" class="level2">
+<h2 class="anchored" data-anchor-id="which-measurements-go-with-faster-progression">Which measurements go with faster progression?</h2>
+<div id="cell-fig-correlations" class="cell" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>corr <span class="op">=</span> (</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    diabetes</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    .drop(columns<span class="op">=</span><span class="st">"progression"</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    .corrwith(diabetes[<span class="st">"progression"</span>])</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    .sort_values()</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>colours <span class="op">=</span> [<span class="st">"#c2410c"</span> <span class="cf">if</span> r <span class="op">&gt;</span> <span class="dv">0</span> <span class="cf">else</span> <span class="st">"#2563eb"</span> <span class="cf">for</span> r <span class="kw">in</span> corr]</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">4.5</span>))</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>bars <span class="op">=</span> ax.barh(corr.index, corr.values, color<span class="op">=</span>colours, height<span class="op">=</span><span class="fl">0.6</span>)</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>ax.bar_label(bars, fmt<span class="op">=</span><span class="st">"</span><span class="sc">%.2f</span><span class="st">"</span>, padding<span class="op">=</span><span class="dv">3</span>, fontsize<span class="op">=</span><span class="dv">9</span>, color<span class="op">=</span><span class="st">"#333333"</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>ax.axvline(<span class="dv">0</span>, color<span class="op">=</span><span class="st">"#999999"</span>, linewidth<span class="op">=</span><span class="fl">0.8</span>)</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"Correlation with progression"</span>)</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>ax.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>ax.set_xlim(<span class="op">-</span><span class="fl">0.5</span>, <span class="fl">0.7</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-correlations" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-correlations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-correlations-output-1.png" width="668" height="422" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-correlations-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Correlation between each baseline measurement and disease progression one year later. Orange bars go with faster progression, blue bars with slower.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Two measurements stand out in <a href="#fig-correlations" class="quarto-xref">Figure&nbsp;1</a>: BMI (0.59) and log triglycerides (0.57). Patients who carried more weight or had more fat in their blood at the start tended to get worse faster. Blood pressure and the cholesterol-to-HDL ratio come next.</p>
+<p>One bar points the other way. HDL, often called “good” cholesterol, has a negative correlation (-0.39), so patients with higher HDL tended to progress more slowly. That matches what doctors would expect, which is a reassuring sign the data behaves sensibly. Age and sex, on the other hand, barely matter on their own.</p>
+<p>Even the strongest correlation is well short of 1, though. No single measurement comes close to telling the whole story.</p>
+</section>
+<section id="the-two-strongest-signals-together" class="level2">
+<h2 class="anchored" data-anchor-id="the-two-strongest-signals-together">The two strongest signals together</h2>
+<div id="cell-fig-bmi-triglycerides" class="cell" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="fl">4.5</span>))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>points <span class="op">=</span> ax.scatter(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    diabetes[<span class="st">"bmi"</span>],</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    diabetes[<span class="st">"progression"</span>],</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    c<span class="op">=</span>diabetes[<span class="st">"log_triglycerides"</span>],</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    cmap<span class="op">=</span><span class="st">"Oranges"</span>,</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    s<span class="op">=</span><span class="dv">22</span>,</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    edgecolors<span class="op">=</span><span class="st">"#555555"</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    linewidths<span class="op">=</span><span class="fl">0.3</span>,</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>fig.colorbar(points, ax<span class="op">=</span>ax, label<span class="op">=</span><span class="st">"Log triglycerides"</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"BMI"</span>)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"Progression one year later"</span>)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>ax.spines[[<span class="st">"top"</span>, <span class="st">"right"</span>]].set_visible(<span class="va">False</span>)</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div id="fig-bmi-triglycerides" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-bmi-triglycerides-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="index_files/figure-html/fig-bmi-triglycerides-output-1.png" width="643" height="422" class="figure-img">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-bmi-triglycerides-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;2: BMI against progression one year later. Each point is a patient, shaded by log triglycerides; darker points have higher triglycerides.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><a href="#fig-bmi-triglycerides" class="quarto-xref">Figure&nbsp;2</a> puts the two leading measurements side by side. Progression rises with BMI, and the darkest points, the patients with the highest triglycerides, sit mostly in the upper right. The scatter is wide, though. Plenty of patients with a high BMI stayed stable, which is another hint that BMI alone is not enough.</p>
+</section>
+<section id="how-much-can-we-actually-predict" class="level2">
+<h2 class="anchored" data-anchor-id="how-much-can-we-actually-predict">How much can we actually predict?</h2>
+<p>To put a number on this, I fit linear regression models that use more and more measurements, and score each one with R², the share of the variation in progression the model explains. A score of 1 would be perfect prediction and 0 would be no better than guessing the average.</p>
+<p>To keep the scores honest, I use 5-fold cross-validation. The data is split into five parts, and each model is trained on four and tested on the fifth, taking turns until every part has been the test set once. Every score therefore comes from patients the model did not see during training.</p>
+<div class="cell" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>X <span class="op">=</span> diabetes.drop(columns<span class="op">=</span><span class="st">"progression"</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> diabetes[<span class="st">"progression"</span>]</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>folds <span class="op">=</span> KFold(n_splits<span class="op">=</span><span class="dv">5</span>, shuffle<span class="op">=</span><span class="va">True</span>, random_state<span class="op">=</span><span class="dv">42</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>feature_sets <span class="op">=</span> {</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"BMI only"</span>: [<span class="st">"bmi"</span>],</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"BMI + triglycerides"</span>: [<span class="st">"bmi"</span>, <span class="st">"log_triglycerides"</span>],</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"BMI + triglycerides + blood pressure"</span>: [<span class="st">"bmi"</span>, <span class="st">"log_triglycerides"</span>, <span class="st">"blood_pressure"</span>],</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"All ten measurements"</span>: <span class="bu">list</span>(X.columns),</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>results <span class="op">=</span> []</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> name, columns <span class="kw">in</span> feature_sets.items():</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    scores <span class="op">=</span> cross_val_score(LinearRegression(), X[columns], y, cv<span class="op">=</span>folds, scoring<span class="op">=</span><span class="st">"r2"</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    results.append({</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Model"</span>: name,</span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Measurements used"</span>: <span class="bu">len</span>(columns),</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>        <span class="st">"Mean R²"</span>: <span class="bu">round</span>(scores.mean(), <span class="dv">2</span>),</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    })</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>pd.DataFrame(results)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div id="tbl-models" class="cell quarto-float quarto-figure quarto-figure-center anchored" data-execution_count="6">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-models-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;2: Cross-validated R² for linear regression models using more and more baseline measurements.
+</figcaption>
+<div aria-describedby="tbl-models-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output cell-output-display" data-execution_count="6">
+<div>
+
+
+<table class="dataframe cell caption-top table table-sm table-striped small" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">Model</th>
+<th data-quarto-table-cell-role="th">Measurements used</th>
+<th data-quarto-table-cell-role="th">Mean R²</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">0</th>
+<td>BMI only</td>
+<td>1</td>
+<td>0.32</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">1</th>
+<td>BMI + triglycerides</td>
+<td>2</td>
+<td>0.43</td>
+</tr>
+<tr class="odd">
+<th data-quarto-table-cell-role="th">2</th>
+<td>BMI + triglycerides + blood pressure</td>
+<td>3</td>
+<td>0.45</td>
+</tr>
+<tr class="even">
+<th data-quarto-table-cell-role="th">3</th>
+<td>All ten measurements</td>
+<td>10</td>
+<td>0.48</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p><a href="#tbl-models" class="quarto-xref">Table&nbsp;2</a> shows that BMI on its own explains about a third of the variation in progression. Adding triglycerides lifts that to around 0.43, and blood pressure nudges it to about 0.45. Using all ten measurements reaches roughly 0.48. The first two measurements do most of the work, and the other eight add very little on top.</p>
+</section>
+<section id="what-i-found" class="level2">
+<h2 class="anchored" data-anchor-id="what-i-found">What I found</h2>
+<ul>
+<li>BMI and triglycerides are the strongest early warning signs in this dataset. Higher values at the start go with faster progression over the next year.</li>
+<li>HDL cholesterol works in the opposite direction, with higher levels linked to slower progression.</li>
+<li>Two measurements get a simple model most of the way. Adding the remaining eight improves the fit only slightly.</li>
+<li>Even the best model explains less than half of the variation. More than half of what separates patients comes from things this dataset does not measure, such as treatment, diet, activity or genetics.</li>
+</ul>
+<p>These are correlations from 442 patients, not causes. They show what tends to go together, not what would happen if a patient changed one number. What the analysis does show is that a couple of routine measurements carry real information about where a patient is heading, and that much of the story still lies outside the data.</p>
 
 
 </section>
