@@ -1,10 +1,143 @@
 [
   {
-    "objectID": "posts/first-weeks/index.html",
-    "href": "posts/first-weeks/index.html",
-    "title": "My First Weeks in MDS",
+    "objectID": "posts/r-meets-python/index.html",
+    "href": "posts/r-meets-python/index.html",
+    "title": "Pricing diamonds in two languages",
     "section": "",
-    "text": "Scavenger Hunt at UBC\n\n\nStarting my Master of Data Science at UBC has been an exciting and slightly overwhelming experience. After spending years studying computing and working on projects involving AI and software development, I was looking forward to finally taking a deeper dive into data science. Orientation and the first days of classes made the transition feel much more real, especially seeing the campus, meeting people from different backgrounds, and beginning this new chapter in Vancouver.\nOne of the things that has surprised me most is how quickly the program moves. There is a lot to learn, and even familiar topics can feel different when approached from a data science perspective. My first weeks have already involved working with probability, statistics, programming, and data, and I am learning that understanding the reasoning behind a solution is just as important as getting the code to work.\nI am still finding my rhythm, but I am excited about what lies ahead. I want to become more confident with the mathematical and statistical foundations of data science while continuing to explore machine learning and AI. For now, I am taking things one week at a time and enjoying the process of becoming a data scientist."
+    "text": "In my diamonds post I showed that clarity only makes sense as a price signal once you account for weight. This post answers the next question: how much is each clarity grade worth, for diamonds of the same weight? It also does something new. R prepares the data, Python fits the model, and R draws the result, all on one page, passing objects back and forth.\nData: diamonds, a dataset of prices and attributes of almost 54,000 round-cut diamonds, distributed with the ggplot2 package (MIT licence). Wickham, H. (2016). ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York."
+  },
+  {
+    "objectID": "posts/r-meets-python/index.html#how-the-two-languages-share-a-page",
+    "href": "posts/r-meets-python/index.html#how-the-two-languages-share-a-page",
+    "title": "Pricing diamonds in two languages",
+    "section": "How the two languages share a page",
+    "text": "How the two languages share a page\nThis document uses the knitr engine. knitr runs the {r} chunks, and hands each {python} chunk to the reticulate package, which runs Python inside the same R session. Because both languages live in one session, they can read each other’s objects:\n\nIn Python, r.name reads the R object called name.\nIn R, py$name reads the Python object called name.\n\nThe setup chunk points reticulate at this project’s own Python environment (the .venv that uv sync creates), so the Python code uses exactly the packages pinned in uv.lock. Quarto runs each post from its own folder, so the project’s top level is two folders up.\n\nlibrary(ggplot2)\nlibrary(dplyr)\nlibrary(reticulate)\n\nvenv_python &lt;- if (.Platform$OS.type == \"windows\") {\n  file.path(\"..\", \"..\", \".venv\", \"Scripts\", \"python.exe\")\n} else {\n  file.path(\"..\", \"..\", \".venv\", \"bin\", \"python\")\n}\n\nuse_python(normalizePath(venv_python, mustWork = TRUE), required = TRUE)"
+  },
+  {
+    "objectID": "posts/r-meets-python/index.html#step-1-r-prepare-the-data",
+    "href": "posts/r-meets-python/index.html#step-1-r-prepare-the-data",
+    "title": "Pricing diamonds in two languages",
+    "section": "Step 1 (R): prepare the data",
+    "text": "Step 1 (R): prepare the data\nPrice grows by a steady percentage for every percentage increase in weight, so I work with the logarithms of both. I also pass the clarity grades in their proper order, from worst (I1) to best (IF), so Python does not sort them alphabetically.\n\ndiamonds_model &lt;- diamonds |&gt;\n  transmute(\n    log_price = log(price),\n    log_carat = log(carat),\n    clarity = as.character(clarity)\n  )\n\nclarity_levels &lt;- levels(diamonds$clarity)\n\ndim(diamonds_model)\n\n[1] 53940     3\n\nclarity_levels\n\n[1] \"I1\"   \"SI2\"  \"SI1\"  \"VS2\"  \"VS1\"  \"VVS2\" \"VVS1\" \"IF\""
+  },
+  {
+    "objectID": "posts/r-meets-python/index.html#step-2-python-fit-and-compare-two-models",
+    "href": "posts/r-meets-python/index.html#step-2-python-fit-and-compare-two-models",
+    "title": "Pricing diamonds in two languages",
+    "section": "Step 2 (Python): fit and compare two models",
+    "text": "Step 2 (Python): fit and compare two models\nPython picks up both R objects with r.diamonds_model and r.clarity_levels. It then uses scikit-learn to compare two linear regression models with 5-fold cross-validation: one that uses weight only, and one that uses weight plus clarity.\n\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.model_selection import KFold, cross_val_score\n\ndf = r.diamonds_model\ndf[\"clarity\"] = pd.Categorical(df[\"clarity\"], categories=r.clarity_levels)\n\ny = df[\"log_price\"]\nX_size = df[[\"log_carat\"]]\nX_full = pd.get_dummies(\n    df[[\"log_carat\", \"clarity\"]],\n    columns=[\"clarity\"],\n    drop_first=True,\n    dtype=float,\n)\n\nfolds = KFold(n_splits=5, shuffle=True, random_state=42)\nr2_size = float(cross_val_score(LinearRegression(), X_size, y, cv=folds, scoring=\"r2\").mean())\nr2_full = float(cross_val_score(LinearRegression(), X_full, y, cv=folds, scoring=\"r2\").mean())\n\nmodel = LinearRegression().fit(X_full, y)\nslope = float(model.coef_[0])\n\nclarity_effects = pd.DataFrame({\n    \"clarity\": [name.replace(\"clarity_\", \"\") for name in X_full.columns[1:]],\n    \"coefficient\": model.coef_[1:],\n})\n\nprint(f\"R² with weight only:         {r2_size:.3f}\")\n\nR² with weight only:         0.933\n\nprint(f\"R² with weight and clarity:  {r2_full:.3f}\")\n\nR² with weight and clarity:  0.965\n\nclarity_effects\n\n  clarity  coefficient\n0     SI2     0.479658\n1     SI1     0.624558\n2     VS2     0.775248\n3     VS1     0.820461\n4    VVS2     0.979221\n5    VVS1     1.028298\n6      IF     1.114625\n\n\ndrop_first=True leaves out the worst grade, I1, so every clarity coefficient measures the difference from an I1 diamond of the same weight."
+  },
+  {
+    "objectID": "posts/r-meets-python/index.html#step-3-r-turn-the-python-results-into-a-chart",
+    "href": "posts/r-meets-python/index.html#step-3-r-turn-the-python-results-into-a-chart",
+    "title": "Pricing diamonds in two languages",
+    "section": "Step 3 (R): turn the Python results into a chart",
+    "text": "Step 3 (R): turn the Python results into a chart\nR now reads the Python results with py$clarity_effects. Because the model works on log prices, a coefficient b means a price exp(b) times as high, so I convert each one into a percentage premium.\n\nclarity_value &lt;- py$clarity_effects |&gt;\n  mutate(\n    premium = (exp(coefficient) - 1) * 100,\n    clarity = factor(clarity, levels = clarity_levels)\n  )\n\nggplot(clarity_value, aes(x = clarity, y = premium)) +\n  geom_col(fill = \"#c2410c\", width = 0.6) +\n  geom_text(aes(label = sprintf(\"+%.0f%%\", premium)), vjust = -0.4, size = 3.2, colour = \"#333333\") +\n  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +\n  labs(x = \"Clarity (worst to best)\", y = \"Price premium over I1 (%)\") +\n  theme_minimal()\n\n\n\n\n\n\n\nFigure 1: How much more a diamond of each clarity grade costs than an I1 diamond of the same weight. Model fitted in Python with scikit-learn, chart drawn in R with ggplot2.\n\n\n\n\n\nAdding clarity lifts the cross-validated R² from 0.933 to 0.965. Weight still does most of the work, but clarity explains a real share of what is left. Figure 1 shows how much: the value climbs steadily with every grade, and a flawless (IF) diamond costs about 205% more than an I1 diamond of the same weight. That is roughly 3 times the price."
+  },
+  {
+    "objectID": "posts/r-meets-python/index.html#do-the-two-languages-agree",
+    "href": "posts/r-meets-python/index.html#do-the-two-languages-agree",
+    "title": "Pricing diamonds in two languages",
+    "section": "Do the two languages agree?",
+    "text": "Do the two languages agree?\nAs a final check, I fit the same model in R with lm() and compare the weight coefficient with the one Python found.\n\nr_model &lt;- lm(log_price ~ log_carat + factor(clarity, levels = clarity_levels), data = diamonds_model)\n\nknitr::kable(\n  data.frame(\n    Language = c(\"Python (scikit-learn)\", \"R (lm)\"),\n    `Weight coefficient` = c(py$slope, unname(coef(r_model)[\"log_carat\"])),\n    check.names = FALSE\n  ),\n  digits = 4\n)\n\n\n\nTable 1: The weight coefficient from the same model, fitted in each language.\n\n\n\n\n\n\nLanguage\nWeight coefficient\n\n\n\n\nPython (scikit-learn)\n1.8064\n\n\nR (lm)\n1.8064\n\n\n\n\n\n\n\n\nTable 1 shows the two languages give the same answer, as they should. It also shows how the story shifts once clarity is in the model. The weight coefficient rises from about 1.68 (weight alone, in my earlier post) to about 1.81. Big diamonds tend to have lower clarity, so leaving clarity out made size look slightly less valuable than it really is."
+  },
+  {
+    "objectID": "posts/r-meets-python/index.html#what-i-found",
+    "href": "posts/r-meets-python/index.html#what-i-found",
+    "title": "Pricing diamonds in two languages",
+    "section": "What I found",
+    "text": "What I found\n\nOnce weight is held fixed, every step up in clarity adds value, and a flawless diamond is worth about three times as much as an I1 diamond of the same weight.\nClarity adds a real, if smaller, share of explanatory power on top of weight.\nR and Python produced identical estimates on the same data, and passing objects between them took one line each way: r.name in Python and py$name in R."
+  },
+  {
+    "objectID": "posts/diamond-price-paradox/index.html",
+    "href": "posts/diamond-price-paradox/index.html",
+    "title": "Why do ‘worse’ diamonds cost more?",
+    "section": "",
+    "text": "Diamonds are graded on how clear they are, how well they are cut and how colourless they are. You would expect a better grade to mean a higher price. When I looked at the prices of nearly 54,000 diamonds, I found the opposite: the clearest diamonds had some of the lowest typical prices. This post works out why.\nData: diamonds, a dataset of prices and attributes of almost 54,000 round-cut diamonds, distributed with the ggplot2 package (MIT licence). Wickham, H. (2016). ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York.\nThe data ships inside ggplot2, so there is no data file to download.\nlibrary(ggplot2)\nlibrary(dplyr)"
+  },
+  {
+    "objectID": "posts/diamond-price-paradox/index.html#the-data",
+    "href": "posts/diamond-price-paradox/index.html#the-data",
+    "title": "Why do ‘worse’ diamonds cost more?",
+    "section": "The data",
+    "text": "The data\n\ndim(diamonds)\n\n[1] 53940    10\n\nhead(diamonds)\n\n# A tibble: 6 × 10\n  carat cut       color clarity depth table price     x     y     z\n  &lt;dbl&gt; &lt;ord&gt;     &lt;ord&gt; &lt;ord&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1  0.23 Ideal     E     SI2      61.5    55   326  3.95  3.98  2.43\n2  0.21 Premium   E     SI1      59.8    61   326  3.89  3.84  2.31\n3  0.23 Good      E     VS1      56.9    65   327  4.05  4.07  2.31\n4  0.29 Premium   I     VS2      62.4    58   334  4.2   4.23  2.63\n5  0.31 Good      J     SI2      63.3    58   335  4.34  4.35  2.75\n6  0.24 Very Good J     VVS2     62.8    57   336  3.94  3.96  2.48\n\n\nEach row is one diamond. Price is in US dollars, and weight is in carats (one carat is 0.2 grams). Clarity is graded on eight levels, from I1 (visible flaws, the worst) through SI2, SI1, VS2, VS1, VVS2 and VVS1 up to IF (internally flawless, the best). ggplot2 stores clarity in that order, so every table and chart below runs from worst to best."
+  },
+  {
+    "objectID": "posts/diamond-price-paradox/index.html#the-puzzle",
+    "href": "posts/diamond-price-paradox/index.html#the-puzzle",
+    "title": "Why do ‘worse’ diamonds cost more?",
+    "section": "The puzzle",
+    "text": "The puzzle\n\nclarity_summary &lt;- diamonds |&gt;\n  group_by(clarity) |&gt;\n  summarise(\n    diamonds = n(),\n    median_price = median(price),\n    median_carat = median(carat)\n  )\n\nknitr::kable(\n  clarity_summary,\n  col.names = c(\"Clarity\", \"Diamonds\", \"Median price (US$)\", \"Median carat\"),\n  format.args = list(big.mark = \",\")\n)\n\n\n\nTable 1: Number of diamonds, median price and median weight for each clarity grade, from worst (I1) to best (IF).\n\n\n\n\n\n\nClarity\nDiamonds\nMedian price (US$)\nMedian carat\n\n\n\n\nI1\n741\n3,344\n1.12\n\n\nSI2\n9,194\n4,072\n1.01\n\n\nSI1\n13,065\n2,822\n0.76\n\n\nVS2\n12,258\n2,054\n0.63\n\n\nVS1\n8,171\n2,005\n0.57\n\n\nVVS2\n5,066\n1,311\n0.44\n\n\nVVS1\n3,655\n1,093\n0.39\n\n\nIF\n1,790\n1,080\n0.35\n\n\n\n\n\n\n\n\nTable 1 shows the puzzle. The typical flawless (IF) diamond sells for about $1,080, while the typical SI2 diamond, two steps up from the bottom grade, sells for about $4,070. Taken at face value, the market seems to pay almost four times more for a worse stone.\nThe last column hints at the answer. The median IF diamond weighs 0.35 carats, while the median SI2 diamond weighs just over 1 carat. The “worse” diamonds are much bigger."
+  },
+  {
+    "objectID": "posts/diamond-price-paradox/index.html#size-drives-price",
+    "href": "posts/diamond-price-paradox/index.html#size-drives-price",
+    "title": "Why do ‘worse’ diamonds cost more?",
+    "section": "Size drives price",
+    "text": "Size drives price\n\nggplot(diamonds, aes(x = carat, y = price)) +\n  geom_point(alpha = 0.05, size = 0.5, colour = \"#2563eb\") +\n  geom_smooth(method = \"lm\", formula = y ~ x, colour = \"#c2410c\", linewidth = 0.8) +\n  scale_x_log10() +\n  scale_y_log10(labels = scales::label_dollar()) +\n  labs(x = \"Carat (log scale)\", y = \"Price (log scale)\") +\n  theme_minimal()\n\n\n\n\n\n\n\nFigure 1: Price against weight for all 53,940 diamonds, both on log scales. The orange line is a straight-line fit.\n\n\n\n\n\nFigure 1 shows that weight is by far the biggest driver of price. On log scales the relationship is close to a straight line, which means price grows by a steady percentage for every percentage increase in weight.\n\nggplot(diamonds, aes(x = clarity, y = carat)) +\n  geom_boxplot(fill = \"#dbeafe\", outlier.alpha = 0.1) +\n  labs(x = \"Clarity (worst to best)\", y = \"Carat\") +\n  theme_minimal()\n\n\n\n\n\n\n\nFigure 2: Weight of diamonds in each clarity grade, from worst (I1) to best (IF).\n\n\n\n\n\nFigure 2 completes the picture: the typical diamond gets smaller as clarity improves. Large, flawless stones are rare, so the best-graded diamonds in this dataset tend to be small ones. Because size matters so much for price, comparing clarity grades directly is really comparing big diamonds with small ones."
+  },
+  {
+    "objectID": "posts/diamond-price-paradox/index.html#comparing-like-with-like",
+    "href": "posts/diamond-price-paradox/index.html#comparing-like-with-like",
+    "title": "Why do ‘worse’ diamonds cost more?",
+    "section": "Comparing like with like",
+    "text": "Comparing like with like\nTo separate clarity from size, I fit a model that predicts price from weight alone.\n\nsize_model &lt;- lm(log(price) ~ log(carat), data = diamonds)\n\ncoef(size_model)\n\n(Intercept)  log(carat) \n   8.448661    1.675817 \n\nsummary(size_model)$r.squared\n\n[1] 0.9329893\n\n\nWeight alone explains about 93% of the variation in log price. The slope of about 1.68 means that doubling a diamond’s weight multiplies its price by roughly 3.2 (2 to the power of 1.68), so a 1-carat diamond costs far more than two half-carat ones.\nThe model’s residuals show how much more or less each diamond costs than a typical diamond of the same weight. Grouping them by clarity answers the real question.\n\nclarity_premium &lt;- diamonds |&gt;\n  mutate(residual = resid(size_model)) |&gt;\n  group_by(clarity) |&gt;\n  summarise(premium = (exp(median(residual)) - 1) * 100)\n\nggplot(clarity_premium, aes(x = clarity, y = premium, fill = premium &gt; 0)) +\n  geom_col(width = 0.6) +\n  geom_hline(yintercept = 0, colour = \"grey60\") +\n  geom_text(\n    aes(label = sprintf(\"%+.0f%%\", premium), vjust = ifelse(premium &gt; 0, -0.4, 1.3)),\n    size = 3.2,\n    colour = \"#333333\"\n  ) +\n  scale_fill_manual(values = c(`TRUE` = \"#c2410c\", `FALSE` = \"#2563eb\"), guide = \"none\") +\n  labs(x = \"Clarity (worst to best)\", y = \"Price vs same-weight typical (%)\") +\n  theme_minimal()\n\n\n\n\n\n\n\nFigure 3: How much more or less each clarity grade costs than a typical diamond of the same weight (median, in %). Orange bars cost more, blue bars cost less.\n\n\n\n\n\nOnce weight is taken into account, the puzzle disappears. Figure 3 climbs steadily from worst to best: an I1 diamond sells for about 47% less than a typical diamond of the same weight, while a flawless IF diamond sells for about 36% more. Clarity does matter, and in the direction you would expect. Size was hiding it.\nThe same thing happens with cut.\n\ndiamonds |&gt;\n  mutate(residual = resid(size_model)) |&gt;\n  group_by(cut) |&gt;\n  summarise(\n    diamonds = n(),\n    median_price = median(price),\n    premium_pct = round((exp(median(residual)) - 1) * 100, 1)\n  ) |&gt;\n  knitr::kable(\n    col.names = c(\"Cut\", \"Diamonds\", \"Median price (US$)\", \"Premium vs same weight (%)\"),\n    format.args = list(big.mark = \",\")\n  )\n\n\n\nTable 2: Median price difference compared with a typical diamond of the same weight, by cut.\n\n\n\n\n\n\nCut\nDiamonds\nMedian price (US$)\nPremium vs same weight (%)\n\n\n\n\nFair\n1,610\n3,282.0\n-20.1\n\n\nGood\n4,906\n3,050.5\n-9.5\n\n\nVery Good\n12,082\n2,648.0\n-2.8\n\n\nPremium\n13,791\n3,185.0\n-2.2\n\n\nIdeal\n21,551\n1,810.0\n5.6\n\n\n\n\n\n\n\n\nIn Table 2, Ideal-cut diamonds have the lowest median price of any cut, about $1,810. After adjusting for weight, though, they carry a premium of about 6%, while Fair-cut diamonds sell for about 20% less than a typical diamond of the same weight."
+  },
+  {
+    "objectID": "posts/diamond-price-paradox/index.html#what-i-found",
+    "href": "posts/diamond-price-paradox/index.html#what-i-found",
+    "title": "Why do ‘worse’ diamonds cost more?",
+    "section": "What I found",
+    "text": "What I found\n\nLooked at on its own, better clarity seems to go with lower prices. The flawless grade has one of the lowest median prices.\nThe reason is size. Weight drives price more than anything else, and the best-graded diamonds in this dataset tend to be small.\nOnce weight is held fixed, better clarity and better cut both come with higher prices, just as you would expect.\n\nThis is an example of confounding: a third variable (weight) is linked to both the grade and the price, and it hides the real relationship between them. The lesson reaches well beyond diamonds. Before trusting a simple comparison between groups, it is worth asking whether the groups differ in some other way that matters."
+  },
+  {
+    "objectID": "portfolio.html",
+    "href": "portfolio.html",
+    "title": "Portfolio",
+    "section": "",
+    "text": "AdaptEd\n\n\n\nAdaptEd\nAn AI-enhanced learning platform for personalised and multimodal learning in higher education. The project uses Python for backend services and PHP for Moodle customizations. Machine learning models (SVD, TF-IDF, Random Forest) are used for content recommendations. Natural language processing techniques are employed for the chatbot and content summarization. The facebook/bart-large-cnn model from HuggingFace Transformers is used for text summarization.\nView on GitHub\n\n\n\n\n\n\nPhoto by Maxim Abramov on Unsplash\n\n\n\nAccident Predictive Modelling\nPredictive modelling of highway traffic accidents across Nigeria’s 37 states, using Federal Road Safety data on accident severity combined with a second dataset on causes such as speeding, dangerous driving and overloading. Covers data merging, exploratory analysis and correlation mapping. It then compares SVM regression models (linear, RBF and polynomial kernels, tuned with grid search) and neural networks for predicting total accident cases and severity levels.\nView on GitHub\n\n\n\n\n\n\nPhoto by Wexor Tmg on Unsplash\n\n\n\nAnimal Vulnerability Analysis\nAnalysis of a 196-species animal dataset exploring which biological and ecological traits predict extinction risk. Includes thorough data cleaning (duplicates, unit conversion, family-level imputation) and comparisons of threat levels by diet, social structure, lifespan and weight. Key finding: threatened species live about twice as long on average, which supports the slow life history hypothesis.\nView on Kaggle\n\n\n\n\n\n\nPurple Sky Weather App\n\n\n\nPurple Sky\nA utilitarian weather application targeting users who require minimal weather information for their day-to-day navigation and schedule. The app provides current weather data, a 3-day weather forecast, air quality information, a weather map with weather icon markers and quality data, the ability to compare weather data between two countries, and the option to add a weather widget to the home screen and weather notifications to the notification bar.\nView on GitHub"
+  },
+  {
+    "objectID": "blog.html",
+    "href": "blog.html",
+    "title": "Blog",
+    "section": "",
+    "text": "Pricing diamonds in two languages\n\n\n\n\n\n\n\n\nSep 25, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\n\n\n\n\n\n\n\nWhat predicts how diabetes progresses in a year?\n\n\n\n\n\n\n\n\nSep 24, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\n\n\n\n\n\n\n\nWhy do ‘worse’ diamonds cost more?\n\n\n\n\n\n\n\n\nSep 23, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\n\n\n\n\n\n\n\nMy First Weeks in MDS\n\n\n\n\n\n\n\n\nSep 13, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "My journey has taken me across several different fields and places. I studied Computing at Glasgow Caledonian University, where I developed a strong interest in technology and its potential to solve real-world problems. My studies exposed me to areas such as machine learning, natural language processing, human-computer interaction, software engineering, and data analysis.\nAlongside my academic journey, I have spent several years building a fashion business. What started as an interest in fashion design grew into an entrepreneurial journey that expanded from Nigeria to Mauritius. Running a business taught me lessons that are difficult to learn from a classroom, including how to understand customers, work with limited resources, adapt to uncertainty, and turn ideas into practical solutions.\nOne of the areas where these interests began to overlap was sustainability. The fashion industry produces enormous amounts of textile waste, and I became increasingly interested in how data and technology could help businesses make better decisions and reduce waste."
+  },
+  {
+    "objectID": "about.html#background",
+    "href": "about.html#background",
+    "title": "About",
+    "section": "",
+    "text": "My journey has taken me across several different fields and places. I studied Computing at Glasgow Caledonian University, where I developed a strong interest in technology and its potential to solve real-world problems. My studies exposed me to areas such as machine learning, natural language processing, human-computer interaction, software engineering, and data analysis.\nAlongside my academic journey, I have spent several years building a fashion business. What started as an interest in fashion design grew into an entrepreneurial journey that expanded from Nigeria to Mauritius. Running a business taught me lessons that are difficult to learn from a classroom, including how to understand customers, work with limited resources, adapt to uncertainty, and turn ideas into practical solutions.\nOne of the areas where these interests began to overlap was sustainability. The fashion industry produces enormous amounts of textile waste, and I became increasingly interested in how data and technology could help businesses make better decisions and reduce waste."
+  },
+  {
+    "objectID": "about.html#why-data-science",
+    "href": "about.html#why-data-science",
+    "title": "About",
+    "section": "Why Data Science",
+    "text": "Why Data Science\nMy interest in data science comes from wanting to move beyond simply building technology and understand how data can be used to make better decisions. During my computing studies, projects involving machine learning and AI showed me how computational methods can be applied to complex problems.\nMy final-year project, AdaptEd: Harnessing AI for Multimodal and Personalized Learning, brought several of these interests together. I developed an AI-enhanced learning platform designed to support personalized and multimodal learning in higher education. Working on the project introduced me to recommender systems, natural language processing, retrieval-augmented generation, and multimodal AI, while also teaching me how challenging it can be to turn an idea into a working system.\nAt UBC, I am interested in developing a stronger foundation in statistics, programming, machine learning, and data analysis. I am particularly interested in human-centred AI and in using data science to address problems that have a meaningful social or environmental impact."
+  },
+  {
+    "objectID": "about.html#outside-of-data-science",
+    "href": "about.html#outside-of-data-science",
+    "title": "About",
+    "section": "Outside of Data Science",
+    "text": "Outside of Data Science\nI have always had interests outside technology. Fashion remains an important part of my life, particularly pattern drafting, designing clothes, and thinking about how creativity and technology can work together. I enjoy learning new things online and can easily spend time watching videos about the brain, neuroscience, AI, or an entirely new topic that catches my attention.\nI also enjoy quieter activities. I am more comfortable with a good learning session, a walk, or exploring a new place than with a packed social schedule. Since moving to Vancouver, I am looking forward to discovering more of the city and finding peaceful places where I can walk, reflect, and recharge.\nFor me, data science is not just about algorithms and code. It is another tool for understanding the world, asking better questions, and building solutions that can make a difference."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Ganiyat Adekunle",
+    "section": "",
+    "text": "Hi! I am Ganiyat. I am from Nigeria. I am a data science student at the University of British Columbia with a background in computing, artificial intelligence, and fashion entrepreneurship. Before starting my Master of Data Science, I studied Computing at Glasgow Caledonian University, where I developed interests in machine learning, natural language processing, and human-computer interaction."
   },
   {
     "objectID": "posts/diabetes-progression/index.html",
@@ -56,143 +189,10 @@
     "text": "What I found\n\nBMI and triglycerides are the strongest early warning signs in this dataset. Higher values at the start go with faster progression over the next year.\nHDL cholesterol works in the opposite direction, with higher levels linked to slower progression.\nTwo measurements get a simple model most of the way. Adding the remaining eight improves the fit only slightly.\nEven the best model explains less than half of the variation. More than half of what separates patients comes from things this dataset does not measure, such as treatment, diet, activity or genetics.\n\nThese are correlations from 442 patients, not causes. They show what tends to go together, not what would happen if a patient changed one number. What the analysis does show is that a couple of routine measurements carry real information about where a patient is heading, and that much of the story still lies outside the data."
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Ganiyat Adekunle",
+    "objectID": "posts/first-weeks/index.html",
+    "href": "posts/first-weeks/index.html",
+    "title": "My First Weeks in MDS",
     "section": "",
-    "text": "Hi! I am Ganiyat. I am from Nigeria. I am a data science student at the University of British Columbia with a background in computing, artificial intelligence, and fashion entrepreneurship. Before starting my Master of Data Science, I studied Computing at Glasgow Caledonian University, where I developed interests in machine learning, natural language processing, and human-computer interaction."
-  },
-  {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "My journey has taken me across several different fields and places. I studied Computing at Glasgow Caledonian University, where I developed a strong interest in technology and its potential to solve real-world problems. My studies exposed me to areas such as machine learning, natural language processing, human-computer interaction, software engineering, and data analysis.\nAlongside my academic journey, I have spent several years building a fashion business. What started as an interest in fashion design grew into an entrepreneurial journey that expanded from Nigeria to Mauritius. Running a business taught me lessons that are difficult to learn from a classroom, including how to understand customers, work with limited resources, adapt to uncertainty, and turn ideas into practical solutions.\nOne of the areas where these interests began to overlap was sustainability. The fashion industry produces enormous amounts of textile waste, and I became increasingly interested in how data and technology could help businesses make better decisions and reduce waste."
-  },
-  {
-    "objectID": "about.html#background",
-    "href": "about.html#background",
-    "title": "About",
-    "section": "",
-    "text": "My journey has taken me across several different fields and places. I studied Computing at Glasgow Caledonian University, where I developed a strong interest in technology and its potential to solve real-world problems. My studies exposed me to areas such as machine learning, natural language processing, human-computer interaction, software engineering, and data analysis.\nAlongside my academic journey, I have spent several years building a fashion business. What started as an interest in fashion design grew into an entrepreneurial journey that expanded from Nigeria to Mauritius. Running a business taught me lessons that are difficult to learn from a classroom, including how to understand customers, work with limited resources, adapt to uncertainty, and turn ideas into practical solutions.\nOne of the areas where these interests began to overlap was sustainability. The fashion industry produces enormous amounts of textile waste, and I became increasingly interested in how data and technology could help businesses make better decisions and reduce waste."
-  },
-  {
-    "objectID": "about.html#why-data-science",
-    "href": "about.html#why-data-science",
-    "title": "About",
-    "section": "Why Data Science",
-    "text": "Why Data Science\nMy interest in data science comes from wanting to move beyond simply building technology and understand how data can be used to make better decisions. During my computing studies, projects involving machine learning and AI showed me how computational methods can be applied to complex problems.\nMy final-year project, AdaptEd: Harnessing AI for Multimodal and Personalized Learning, brought several of these interests together. I developed an AI-enhanced learning platform designed to support personalized and multimodal learning in higher education. Working on the project introduced me to recommender systems, natural language processing, retrieval-augmented generation, and multimodal AI, while also teaching me how challenging it can be to turn an idea into a working system.\nAt UBC, I am interested in developing a stronger foundation in statistics, programming, machine learning, and data analysis. I am particularly interested in human-centred AI and in using data science to address problems that have a meaningful social or environmental impact."
-  },
-  {
-    "objectID": "about.html#outside-of-data-science",
-    "href": "about.html#outside-of-data-science",
-    "title": "About",
-    "section": "Outside of Data Science",
-    "text": "Outside of Data Science\nI have always had interests outside technology. Fashion remains an important part of my life, particularly pattern drafting, designing clothes, and thinking about how creativity and technology can work together. I enjoy learning new things online and can easily spend time watching videos about the brain, neuroscience, AI, or an entirely new topic that catches my attention.\nI also enjoy quieter activities. I am more comfortable with a good learning session, a walk, or exploring a new place than with a packed social schedule. Since moving to Vancouver, I am looking forward to discovering more of the city and finding peaceful places where I can walk, reflect, and recharge.\nFor me, data science is not just about algorithms and code. It is another tool for understanding the world, asking better questions, and building solutions that can make a difference."
-  },
-  {
-    "objectID": "blog.html",
-    "href": "blog.html",
-    "title": "Blog",
-    "section": "",
-    "text": "Pricing diamonds in two languages\n\n\n\n\n\n\n\n\nSep 25, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\n\n\n\n\n\n\n\nWhat predicts how diabetes progresses in a year?\n\n\n\n\n\n\n\n\nSep 24, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\n\n\n\n\n\n\n\nWhy do ‘worse’ diamonds cost more?\n\n\n\n\n\n\n\n\nSep 23, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\n\n\n\n\n\n\n\nMy First Weeks in MDS\n\n\n\n\n\n\n\n\nSep 13, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "portfolio.html",
-    "href": "portfolio.html",
-    "title": "Portfolio",
-    "section": "",
-    "text": "AdaptEd\n\n\n\nAdaptEd\nAn AI-enhanced learning platform for personalised and multimodal learning in higher education. The project uses Python for backend services and PHP for Moodle customizations. Machine learning models (SVD, TF-IDF, Random Forest) are used for content recommendations. Natural language processing techniques are employed for the chatbot and content summarization. The facebook/bart-large-cnn model from HuggingFace Transformers is used for text summarization.\nView on GitHub\n\n\n\n\n\n\nPhoto by Maxim Abramov on Unsplash\n\n\n\nAccident Predictive Modelling\nPredictive modelling of highway traffic accidents across Nigeria’s 37 states, using Federal Road Safety data on accident severity combined with a second dataset on causes such as speeding, dangerous driving and overloading. Covers data merging, exploratory analysis and correlation mapping. It then compares SVM regression models (linear, RBF and polynomial kernels, tuned with grid search) and neural networks for predicting total accident cases and severity levels.\nView on GitHub\n\n\n\n\n\n\nPhoto by Wexor Tmg on Unsplash\n\n\n\nAnimal Vulnerability Analysis\nAnalysis of a 196-species animal dataset exploring which biological and ecological traits predict extinction risk. Includes thorough data cleaning (duplicates, unit conversion, family-level imputation) and comparisons of threat levels by diet, social structure, lifespan and weight. Key finding: threatened species live about twice as long on average, which supports the slow life history hypothesis.\nView on Kaggle\n\n\n\n\n\n\nPurple Sky Weather App\n\n\n\nPurple Sky\nA utilitarian weather application targeting users who require minimal weather information for their day-to-day navigation and schedule. The app provides current weather data, a 3-day weather forecast, air quality information, a weather map with weather icon markers and quality data, the ability to compare weather data between two countries, and the option to add a weather widget to the home screen and weather notifications to the notification bar.\nView on GitHub"
-  },
-  {
-    "objectID": "posts/diamond-price-paradox/index.html",
-    "href": "posts/diamond-price-paradox/index.html",
-    "title": "Why do ‘worse’ diamonds cost more?",
-    "section": "",
-    "text": "Diamonds are graded on how clear they are, how well they are cut and how colourless they are. You would expect a better grade to mean a higher price. When I looked at the prices of nearly 54,000 diamonds, I found the opposite: the clearest diamonds had some of the lowest typical prices. This post works out why.\nData: diamonds, a dataset of prices and attributes of almost 54,000 round-cut diamonds, distributed with the ggplot2 package (MIT licence). Wickham, H. (2016). ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York.\nThe data ships inside ggplot2, so there is no data file to download.\nlibrary(ggplot2)\nlibrary(dplyr)"
-  },
-  {
-    "objectID": "posts/diamond-price-paradox/index.html#the-data",
-    "href": "posts/diamond-price-paradox/index.html#the-data",
-    "title": "Why do ‘worse’ diamonds cost more?",
-    "section": "The data",
-    "text": "The data\n\ndim(diamonds)\n\n[1] 53940    10\n\nhead(diamonds)\n\n# A tibble: 6 × 10\n  carat cut       color clarity depth table price     x     y     z\n  &lt;dbl&gt; &lt;ord&gt;     &lt;ord&gt; &lt;ord&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;\n1  0.23 Ideal     E     SI2      61.5    55   326  3.95  3.98  2.43\n2  0.21 Premium   E     SI1      59.8    61   326  3.89  3.84  2.31\n3  0.23 Good      E     VS1      56.9    65   327  4.05  4.07  2.31\n4  0.29 Premium   I     VS2      62.4    58   334  4.2   4.23  2.63\n5  0.31 Good      J     SI2      63.3    58   335  4.34  4.35  2.75\n6  0.24 Very Good J     VVS2     62.8    57   336  3.94  3.96  2.48\n\n\nEach row is one diamond. Price is in US dollars, and weight is in carats (one carat is 0.2 grams). Clarity is graded on eight levels, from I1 (visible flaws, the worst) through SI2, SI1, VS2, VS1, VVS2 and VVS1 up to IF (internally flawless, the best). ggplot2 stores clarity in that order, so every table and chart below runs from worst to best."
-  },
-  {
-    "objectID": "posts/diamond-price-paradox/index.html#the-puzzle",
-    "href": "posts/diamond-price-paradox/index.html#the-puzzle",
-    "title": "Why do ‘worse’ diamonds cost more?",
-    "section": "The puzzle",
-    "text": "The puzzle\n\nclarity_summary &lt;- diamonds |&gt;\n  group_by(clarity) |&gt;\n  summarise(\n    diamonds = n(),\n    median_price = median(price),\n    median_carat = median(carat)\n  )\n\nknitr::kable(\n  clarity_summary,\n  col.names = c(\"Clarity\", \"Diamonds\", \"Median price (US$)\", \"Median carat\"),\n  format.args = list(big.mark = \",\")\n)\n\n\n\nTable 1: Number of diamonds, median price and median weight for each clarity grade, from worst (I1) to best (IF).\n\n\n\n\n\n\nClarity\nDiamonds\nMedian price (US$)\nMedian carat\n\n\n\n\nI1\n741\n3,344\n1.12\n\n\nSI2\n9,194\n4,072\n1.01\n\n\nSI1\n13,065\n2,822\n0.76\n\n\nVS2\n12,258\n2,054\n0.63\n\n\nVS1\n8,171\n2,005\n0.57\n\n\nVVS2\n5,066\n1,311\n0.44\n\n\nVVS1\n3,655\n1,093\n0.39\n\n\nIF\n1,790\n1,080\n0.35\n\n\n\n\n\n\n\n\nTable 1 shows the puzzle. The typical flawless (IF) diamond sells for about $1,080, while the typical SI2 diamond, two steps up from the bottom grade, sells for about $4,070. Taken at face value, the market seems to pay almost four times more for a worse stone.\nThe last column hints at the answer. The median IF diamond weighs 0.35 carats, while the median SI2 diamond weighs just over 1 carat. The “worse” diamonds are much bigger."
-  },
-  {
-    "objectID": "posts/diamond-price-paradox/index.html#size-drives-price",
-    "href": "posts/diamond-price-paradox/index.html#size-drives-price",
-    "title": "Why do ‘worse’ diamonds cost more?",
-    "section": "Size drives price",
-    "text": "Size drives price\n\nggplot(diamonds, aes(x = carat, y = price)) +\n  geom_point(alpha = 0.05, size = 0.5, colour = \"#2563eb\") +\n  geom_smooth(method = \"lm\", formula = y ~ x, colour = \"#c2410c\", linewidth = 0.8) +\n  scale_x_log10() +\n  scale_y_log10(labels = scales::label_dollar()) +\n  labs(x = \"Carat (log scale)\", y = \"Price (log scale)\") +\n  theme_minimal()\n\n\n\n\n\n\n\nFigure 1: Price against weight for all 53,940 diamonds, both on log scales. The orange line is a straight-line fit.\n\n\n\n\n\nFigure 1 shows that weight is by far the biggest driver of price. On log scales the relationship is close to a straight line, which means price grows by a steady percentage for every percentage increase in weight.\n\nggplot(diamonds, aes(x = clarity, y = carat)) +\n  geom_boxplot(fill = \"#dbeafe\", outlier.alpha = 0.1) +\n  labs(x = \"Clarity (worst to best)\", y = \"Carat\") +\n  theme_minimal()\n\n\n\n\n\n\n\nFigure 2: Weight of diamonds in each clarity grade, from worst (I1) to best (IF).\n\n\n\n\n\nFigure 2 completes the picture: the typical diamond gets smaller as clarity improves. Large, flawless stones are rare, so the best-graded diamonds in this dataset tend to be small ones. Because size matters so much for price, comparing clarity grades directly is really comparing big diamonds with small ones."
-  },
-  {
-    "objectID": "posts/diamond-price-paradox/index.html#comparing-like-with-like",
-    "href": "posts/diamond-price-paradox/index.html#comparing-like-with-like",
-    "title": "Why do ‘worse’ diamonds cost more?",
-    "section": "Comparing like with like",
-    "text": "Comparing like with like\nTo separate clarity from size, I fit a model that predicts price from weight alone.\n\nsize_model &lt;- lm(log(price) ~ log(carat), data = diamonds)\n\ncoef(size_model)\n\n(Intercept)  log(carat) \n   8.448661    1.675817 \n\nsummary(size_model)$r.squared\n\n[1] 0.9329893\n\n\nWeight alone explains about 93% of the variation in log price. The slope of about 1.68 means that doubling a diamond’s weight multiplies its price by roughly 3.2 (2 to the power of 1.68), so a 1-carat diamond costs far more than two half-carat ones.\nThe model’s residuals show how much more or less each diamond costs than a typical diamond of the same weight. Grouping them by clarity answers the real question.\n\nclarity_premium &lt;- diamonds |&gt;\n  mutate(residual = resid(size_model)) |&gt;\n  group_by(clarity) |&gt;\n  summarise(premium = (exp(median(residual)) - 1) * 100)\n\nggplot(clarity_premium, aes(x = clarity, y = premium, fill = premium &gt; 0)) +\n  geom_col(width = 0.6) +\n  geom_hline(yintercept = 0, colour = \"grey60\") +\n  geom_text(\n    aes(label = sprintf(\"%+.0f%%\", premium), vjust = ifelse(premium &gt; 0, -0.4, 1.3)),\n    size = 3.2,\n    colour = \"#333333\"\n  ) +\n  scale_fill_manual(values = c(`TRUE` = \"#c2410c\", `FALSE` = \"#2563eb\"), guide = \"none\") +\n  labs(x = \"Clarity (worst to best)\", y = \"Price vs same-weight typical (%)\") +\n  theme_minimal()\n\n\n\n\n\n\n\nFigure 3: How much more or less each clarity grade costs than a typical diamond of the same weight (median, in %). Orange bars cost more, blue bars cost less.\n\n\n\n\n\nOnce weight is taken into account, the puzzle disappears. Figure 3 climbs steadily from worst to best: an I1 diamond sells for about 47% less than a typical diamond of the same weight, while a flawless IF diamond sells for about 36% more. Clarity does matter, and in the direction you would expect. Size was hiding it.\nThe same thing happens with cut.\n\ndiamonds |&gt;\n  mutate(residual = resid(size_model)) |&gt;\n  group_by(cut) |&gt;\n  summarise(\n    diamonds = n(),\n    median_price = median(price),\n    premium_pct = round((exp(median(residual)) - 1) * 100, 1)\n  ) |&gt;\n  knitr::kable(\n    col.names = c(\"Cut\", \"Diamonds\", \"Median price (US$)\", \"Premium vs same weight (%)\"),\n    format.args = list(big.mark = \",\")\n  )\n\n\n\nTable 2: Median price difference compared with a typical diamond of the same weight, by cut.\n\n\n\n\n\n\nCut\nDiamonds\nMedian price (US$)\nPremium vs same weight (%)\n\n\n\n\nFair\n1,610\n3,282.0\n-20.1\n\n\nGood\n4,906\n3,050.5\n-9.5\n\n\nVery Good\n12,082\n2,648.0\n-2.8\n\n\nPremium\n13,791\n3,185.0\n-2.2\n\n\nIdeal\n21,551\n1,810.0\n5.6\n\n\n\n\n\n\n\n\nIn Table 2, Ideal-cut diamonds have the lowest median price of any cut, about $1,810. After adjusting for weight, though, they carry a premium of about 6%, while Fair-cut diamonds sell for about 20% less than a typical diamond of the same weight."
-  },
-  {
-    "objectID": "posts/diamond-price-paradox/index.html#what-i-found",
-    "href": "posts/diamond-price-paradox/index.html#what-i-found",
-    "title": "Why do ‘worse’ diamonds cost more?",
-    "section": "What I found",
-    "text": "What I found\n\nLooked at on its own, better clarity seems to go with lower prices. The flawless grade has one of the lowest median prices.\nThe reason is size. Weight drives price more than anything else, and the best-graded diamonds in this dataset tend to be small.\nOnce weight is held fixed, better clarity and better cut both come with higher prices, just as you would expect.\n\nThis is an example of confounding: a third variable (weight) is linked to both the grade and the price, and it hides the real relationship between them. The lesson reaches well beyond diamonds. Before trusting a simple comparison between groups, it is worth asking whether the groups differ in some other way that matters."
-  },
-  {
-    "objectID": "posts/r-meets-python/index.html",
-    "href": "posts/r-meets-python/index.html",
-    "title": "Pricing diamonds in two languages",
-    "section": "",
-    "text": "In my diamonds post I showed that clarity only makes sense as a price signal once you account for weight. This post answers the next question: how much is each clarity grade worth, for diamonds of the same weight? It also does something new. R prepares the data, Python fits the model, and R draws the result, all on one page, passing objects back and forth.\nData: diamonds, a dataset of prices and attributes of almost 54,000 round-cut diamonds, distributed with the ggplot2 package (MIT licence). Wickham, H. (2016). ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York."
-  },
-  {
-    "objectID": "posts/r-meets-python/index.html#how-the-two-languages-share-a-page",
-    "href": "posts/r-meets-python/index.html#how-the-two-languages-share-a-page",
-    "title": "Pricing diamonds in two languages",
-    "section": "How the two languages share a page",
-    "text": "How the two languages share a page\nThis document uses the knitr engine. knitr runs the {r} chunks, and hands each {python} chunk to the reticulate package, which runs Python inside the same R session. Because both languages live in one session, they can read each other’s objects:\n\nIn Python, r.name reads the R object called name.\nIn R, py$name reads the Python object called name.\n\nThe setup chunk points reticulate at this project’s own Python environment (the .venv that uv sync creates), so the Python code uses exactly the packages pinned in uv.lock. Quarto runs each post from its own folder, so the project’s top level is two folders up.\n\nlibrary(ggplot2)\nlibrary(dplyr)\nlibrary(reticulate)\n\nvenv_python &lt;- if (.Platform$OS.type == \"windows\") {\n  file.path(\"..\", \"..\", \".venv\", \"Scripts\", \"python.exe\")\n} else {\n  file.path(\"..\", \"..\", \".venv\", \"bin\", \"python\")\n}\n\nuse_python(normalizePath(venv_python, mustWork = TRUE), required = TRUE)"
-  },
-  {
-    "objectID": "posts/r-meets-python/index.html#step-1-r-prepare-the-data",
-    "href": "posts/r-meets-python/index.html#step-1-r-prepare-the-data",
-    "title": "Pricing diamonds in two languages",
-    "section": "Step 1 (R): prepare the data",
-    "text": "Step 1 (R): prepare the data\nPrice grows by a steady percentage for every percentage increase in weight, so I work with the logarithms of both. I also pass the clarity grades in their proper order, from worst (I1) to best (IF), so Python does not sort them alphabetically.\n\ndiamonds_model &lt;- diamonds |&gt;\n  transmute(\n    log_price = log(price),\n    log_carat = log(carat),\n    clarity = as.character(clarity)\n  )\n\nclarity_levels &lt;- levels(diamonds$clarity)\n\ndim(diamonds_model)\n\n[1] 53940     3\n\nclarity_levels\n\n[1] \"I1\"   \"SI2\"  \"SI1\"  \"VS2\"  \"VS1\"  \"VVS2\" \"VVS1\" \"IF\""
-  },
-  {
-    "objectID": "posts/r-meets-python/index.html#step-2-python-fit-and-compare-two-models",
-    "href": "posts/r-meets-python/index.html#step-2-python-fit-and-compare-two-models",
-    "title": "Pricing diamonds in two languages",
-    "section": "Step 2 (Python): fit and compare two models",
-    "text": "Step 2 (Python): fit and compare two models\nPython picks up both R objects with r.diamonds_model and r.clarity_levels. It then uses scikit-learn to compare two linear regression models with 5-fold cross-validation: one that uses weight only, and one that uses weight plus clarity.\n\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.model_selection import KFold, cross_val_score\n\ndf = r.diamonds_model\ndf[\"clarity\"] = pd.Categorical(df[\"clarity\"], categories=r.clarity_levels)\n\ny = df[\"log_price\"]\nX_size = df[[\"log_carat\"]]\nX_full = pd.get_dummies(\n    df[[\"log_carat\", \"clarity\"]],\n    columns=[\"clarity\"],\n    drop_first=True,\n    dtype=float,\n)\n\nfolds = KFold(n_splits=5, shuffle=True, random_state=42)\nr2_size = float(cross_val_score(LinearRegression(), X_size, y, cv=folds, scoring=\"r2\").mean())\nr2_full = float(cross_val_score(LinearRegression(), X_full, y, cv=folds, scoring=\"r2\").mean())\n\nmodel = LinearRegression().fit(X_full, y)\nslope = float(model.coef_[0])\n\nclarity_effects = pd.DataFrame({\n    \"clarity\": [name.replace(\"clarity_\", \"\") for name in X_full.columns[1:]],\n    \"coefficient\": model.coef_[1:],\n})\n\nprint(f\"R² with weight only:         {r2_size:.3f}\")\n\nR² with weight only:         0.933\n\nprint(f\"R² with weight and clarity:  {r2_full:.3f}\")\n\nR² with weight and clarity:  0.965\n\nclarity_effects\n\n  clarity  coefficient\n0     SI2     0.479658\n1     SI1     0.624558\n2     VS2     0.775248\n3     VS1     0.820461\n4    VVS2     0.979221\n5    VVS1     1.028298\n6      IF     1.114625\n\n\ndrop_first=True leaves out the worst grade, I1, so every clarity coefficient measures the difference from an I1 diamond of the same weight."
-  },
-  {
-    "objectID": "posts/r-meets-python/index.html#step-3-r-turn-the-python-results-into-a-chart",
-    "href": "posts/r-meets-python/index.html#step-3-r-turn-the-python-results-into-a-chart",
-    "title": "Pricing diamonds in two languages",
-    "section": "Step 3 (R): turn the Python results into a chart",
-    "text": "Step 3 (R): turn the Python results into a chart\nR now reads the Python results with py$clarity_effects. Because the model works on log prices, a coefficient b means a price exp(b) times as high, so I convert each one into a percentage premium.\n\nclarity_value &lt;- py$clarity_effects |&gt;\n  mutate(\n    premium = (exp(coefficient) - 1) * 100,\n    clarity = factor(clarity, levels = clarity_levels)\n  )\n\nggplot(clarity_value, aes(x = clarity, y = premium)) +\n  geom_col(fill = \"#c2410c\", width = 0.6) +\n  geom_text(aes(label = sprintf(\"+%.0f%%\", premium)), vjust = -0.4, size = 3.2, colour = \"#333333\") +\n  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +\n  labs(x = \"Clarity (worst to best)\", y = \"Price premium over I1 (%)\") +\n  theme_minimal()\n\n\n\n\n\n\n\nFigure 1: How much more a diamond of each clarity grade costs than an I1 diamond of the same weight. Model fitted in Python with scikit-learn, chart drawn in R with ggplot2.\n\n\n\n\n\nAdding clarity lifts the cross-validated R² from 0.933 to 0.965. Weight still does most of the work, but clarity explains a real share of what is left. Figure 1 shows how much: the value climbs steadily with every grade, and a flawless (IF) diamond costs about 205% more than an I1 diamond of the same weight. That is roughly 3 times the price."
-  },
-  {
-    "objectID": "posts/r-meets-python/index.html#do-the-two-languages-agree",
-    "href": "posts/r-meets-python/index.html#do-the-two-languages-agree",
-    "title": "Pricing diamonds in two languages",
-    "section": "Do the two languages agree?",
-    "text": "Do the two languages agree?\nAs a final check, I fit the same model in R with lm() and compare the weight coefficient with the one Python found.\n\nr_model &lt;- lm(log_price ~ log_carat + factor(clarity, levels = clarity_levels), data = diamonds_model)\n\nknitr::kable(\n  data.frame(\n    Language = c(\"Python (scikit-learn)\", \"R (lm)\"),\n    `Weight coefficient` = c(py$slope, unname(coef(r_model)[\"log_carat\"])),\n    check.names = FALSE\n  ),\n  digits = 4\n)\n\n\n\nTable 1: The weight coefficient from the same model, fitted in each language.\n\n\n\n\n\n\nLanguage\nWeight coefficient\n\n\n\n\nPython (scikit-learn)\n1.8064\n\n\nR (lm)\n1.8064\n\n\n\n\n\n\n\n\nTable 1 shows the two languages give the same answer, as they should. It also shows how the story shifts once clarity is in the model. The weight coefficient rises from about 1.68 (weight alone, in my earlier post) to about 1.81. Big diamonds tend to have lower clarity, so leaving clarity out made size look slightly less valuable than it really is."
-  },
-  {
-    "objectID": "posts/r-meets-python/index.html#what-i-found",
-    "href": "posts/r-meets-python/index.html#what-i-found",
-    "title": "Pricing diamonds in two languages",
-    "section": "What I found",
-    "text": "What I found\n\nOnce weight is held fixed, every step up in clarity adds value, and a flawless diamond is worth about three times as much as an I1 diamond of the same weight.\nClarity adds a real, if smaller, share of explanatory power on top of weight.\nR and Python produced identical estimates on the same data, and passing objects between them took one line each way: r.name in Python and py$name in R."
+    "text": "Scavenger Hunt at UBC\n\n\nStarting my Master of Data Science at UBC has been an exciting and slightly overwhelming experience. After spending years studying computing and working on projects involving AI and software development, I was looking forward to finally taking a deeper dive into data science. Orientation and the first days of classes made the transition feel much more real, especially seeing the campus, meeting people from different backgrounds, and beginning this new chapter in Vancouver.\nOne of the things that has surprised me most is how quickly the program moves. There is a lot to learn, and even familiar topics can feel different when approached from a data science perspective. My first weeks have already involved working with probability, statistics, programming, and data, and I am learning that understanding the reasoning behind a solution is just as important as getting the code to work.\nI am still finding my rhythm, but I am excited about what lies ahead. I want to become more confident with the mathematical and statistical foundations of data science while continuing to explore machine learning and AI. For now, I am taking things one week at a time and enjoying the process of becoming a data scientist."
   }
 ]
