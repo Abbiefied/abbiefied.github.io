@@ -1,5 +1,4 @@
 # abbiefied.github.io
-Personal Portfolio
 
 My personal website and blog, built with [Quarto](https://quarto.org) and published with GitHub Pages at <https://abbiefied.github.io>. It includes two computational blog posts, one in Python and one in R, each with its own pinned environment so the whole site can be rebuilt from scratch.
 

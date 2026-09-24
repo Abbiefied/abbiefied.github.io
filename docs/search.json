@@ -60,7 +60,7 @@
     "href": "index.html",
     "title": "Ganiyat Adekunle",
     "section": "",
-    "text": "Hi! I am Ganiyat. I am from Nigeria. I am a data science student at the University of British Columbia with a background in computing, artificial intelligence, and fashion entrepreneurship. Before starting my Master of Data Science, I studied Computing at Glasgow Caledonian University, where I developed interests in machine learning, natural language processing, human-computer interaction, and software development."
+    "text": "Google Developer Groups DevFest 2022\n\n\nHi! I am Ganiyat. I am from Nigeria. I am a data science student at the University of British Columbia with a background in computing, artificial intelligence, and fashion entrepreneurship. Before starting my Master of Data Science, I studied Computing at Glasgow Caledonian University, where I developed interests in machine learning, natural language processing, and human-computer interaction."
   },
   {
     "objectID": "about.html",
@@ -158,7 +158,7 @@
     "href": "posts/r-meets-python/index.html#how-the-two-languages-share-a-page",
     "title": "Pricing diamonds in two languages",
     "section": "How the two languages share a page",
-    "text": "How the two languages share a page\nThis document uses the knitr engine. knitr runs the {r} chunks, and hands each {python} chunk to the reticulate package, which runs Python inside the same R session. Because both languages live in one session, they can read each other’s objects:\n\nIn Python, r.name reads the R object called name.\nIn R, py$name reads the Python object called name.\n\nThe setup chunk points reticulate at this project’s own Python environment (the .venv that uv sync creates), so the Python code uses exactly the packages pinned in uv.lock. Quarto runs each post from its own folder, so the project’s top level is two folders up.\n\nlibrary(ggplot2)\nlibrary(dplyr)\nlibrary(reticulate)\n\nvenv_python &lt;- if (.Platform$OS.type == \"windows\") {\n  file.path(\"..\", \"..\", \".venv\", \"Scripts\", \"python.exe\")\n} else {\n  file.path(\"..\", \"..\", \".venv\", \"bin\", \"python\")\n}\n\nuse_python(normalizePath(venv_python, mustWork = TRUE), required = TRUE)\n\nA quick check that Python is running from the project’s .venv:\n\nimport sys\nprint(sys.executable)\n\nC:\\Users\\ganiy\\DOCUME~1\\UBC\\DSCI52~1\\Labs\\ABBIEF~1.IO\\VENV~1\\Scripts\\python.exe"
+    "text": "How the two languages share a page\nThis document uses the knitr engine. knitr runs the {r} chunks, and hands each {python} chunk to the reticulate package, which runs Python inside the same R session. Because both languages live in one session, they can read each other’s objects:\n\nIn Python, r.name reads the R object called name.\nIn R, py$name reads the Python object called name.\n\nThe setup chunk points reticulate at this project’s own Python environment (the .venv that uv sync creates), so the Python code uses exactly the packages pinned in uv.lock. Quarto runs each post from its own folder, so the project’s top level is two folders up.\n\nlibrary(ggplot2)\nlibrary(dplyr)\nlibrary(reticulate)\n\nvenv_python &lt;- if (.Platform$OS.type == \"windows\") {\n  file.path(\"..\", \"..\", \".venv\", \"Scripts\", \"python.exe\")\n} else {\n  file.path(\"..\", \"..\", \".venv\", \"bin\", \"python\")\n}\n\nuse_python(normalizePath(venv_python, mustWork = TRUE), required = TRUE)"
   },
   {
     "objectID": "posts/r-meets-python/index.html#step-1-r-prepare-the-data",

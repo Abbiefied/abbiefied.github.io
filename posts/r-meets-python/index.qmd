@@ -36,14 +36,6 @@ venv_python <- if (.Platform$OS.type == "windows") {
 use_python(normalizePath(venv_python, mustWork = TRUE), required = TRUE)
 ```
 
-A quick check that Python is running from the project's `.venv`:
-
-```{python}
-#| label: check-python
-import sys
-print(sys.executable)
-```
-
 ## Step 1 (R): prepare the data
 
 Price grows by a steady percentage for every percentage increase in weight, so I work with the logarithms of both. I also pass the clarity grades in their proper order, from worst (I1) to best (IF), so Python does not sort them alphabetically.
