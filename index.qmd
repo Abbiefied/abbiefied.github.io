@@ -1,7 +1,7 @@
 ---
 title: "Ganiyat Adekunle"
 ---
-![Google Developer Groups DevFest 2022](images/devfest.JPG){width=400 height=500}
+![](images/side.jpg){width=350 height=400 fig-align="center"}
 
 Hi! I am Ganiyat. I am from Nigeria. I am a data science student at the University of British Columbia with a background in computing, artificial intelligence, and fashion entrepreneurship. Before starting my Master of Data Science, I studied Computing at Glasgow Caledonian University, where I developed interests in machine learning, natural language processing, and human-computer interaction.
 
