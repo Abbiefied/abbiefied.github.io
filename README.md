@@ -67,7 +67,9 @@ renv::restore()
 uv run quarto render
 ```
 
-`uv run` makes sure Quarto uses the Python in `.venv`. Both blog posts run their code during this step.
+`uv run` makes sure Quarto uses the Python in `.venv`. All three blog posts run their code during this step.
+ 
+Steps 2 and 3 must both be done before rendering. The R and Python post (`posts/r-meets-python/`) needs the R packages from `renv.lock`, including reticulate, and it runs its Python code with the `.venv` from step 2. It finds `.venv` itself, on Windows, macOS and Linux, so there is nothing to configure.
 
 ## Where the built site goes
 

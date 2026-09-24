@@ -95,7 +95,7 @@
     "href": "blog.html",
     "title": "Blog",
     "section": "",
-    "text": "What predicts how diabetes progresses in a year?\n\n\n\n\n\n\n\n\nSep 23, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\n\n\n\n\n\n\n\nWhy do ‘worse’ diamonds cost more?\n\n\n\n\n\n\n\n\nSep 23, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\n\n\n\n\n\n\n\nMy First Weeks in MDS\n\n\n\n\n\n\n\n\nSep 13, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\nNo matching items"
+    "text": "What predicts how diabetes progresses in a year?\n\n\n\n\n\n\n\n\nSep 23, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\n\n\n\n\n\n\n\nWhy do ‘worse’ diamonds cost more?\n\n\n\n\n\n\n\n\nSep 23, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\n\n\n\n\n\n\n\nPricing diamonds in two languages\n\n\n\n\n\n\n\n\nSep 23, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\n\n\n\n\n\n\n\nMy First Weeks in MDS\n\n\n\n\n\n\n\n\nSep 13, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "portfolio.html",
@@ -145,5 +145,54 @@
     "title": "Why do ‘worse’ diamonds cost more?",
     "section": "What I found",
     "text": "What I found\n\nLooked at on its own, better clarity seems to go with lower prices. The flawless grade has one of the lowest median prices.\nThe reason is size. Weight drives price more than anything else, and the best-graded diamonds in this dataset tend to be small.\nOnce weight is held fixed, better clarity and better cut both come with higher prices, just as you would expect.\n\nThis is an example of confounding: a third variable (weight) is linked to both the grade and the price, and it hides the real relationship between them. The lesson reaches well beyond diamonds. Before trusting a simple comparison between groups, it is worth asking whether the groups differ in some other way that matters."
+  },
+  {
+    "objectID": "posts/r-meets-python/index.html",
+    "href": "posts/r-meets-python/index.html",
+    "title": "Pricing diamonds in two languages",
+    "section": "",
+    "text": "In my diamonds post I showed that clarity only makes sense as a price signal once you account for weight. This post answers the next question: how much is each clarity grade worth, for diamonds of the same weight? It also does something new. R prepares the data, Python fits the model, and R draws the result, all on one page, passing objects back and forth.\nData: diamonds, a dataset of prices and attributes of almost 54,000 round-cut diamonds, distributed with the ggplot2 package (MIT licence). Wickham, H. (2016). ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York."
+  },
+  {
+    "objectID": "posts/r-meets-python/index.html#how-the-two-languages-share-a-page",
+    "href": "posts/r-meets-python/index.html#how-the-two-languages-share-a-page",
+    "title": "Pricing diamonds in two languages",
+    "section": "How the two languages share a page",
+    "text": "How the two languages share a page\nThis document uses the knitr engine. knitr runs the {r} chunks, and hands each {python} chunk to the reticulate package, which runs Python inside the same R session. Because both languages live in one session, they can read each other’s objects:\n\nIn Python, r.name reads the R object called name.\nIn R, py$name reads the Python object called name.\n\nThe setup chunk points reticulate at this project’s own Python environment (the .venv that uv sync creates), so the Python code uses exactly the packages pinned in uv.lock. Quarto runs each post from its own folder, so the project’s top level is two folders up.\n\nlibrary(ggplot2)\nlibrary(dplyr)\nlibrary(reticulate)\n\nvenv_python &lt;- if (.Platform$OS.type == \"windows\") {\n  file.path(\"..\", \"..\", \".venv\", \"Scripts\", \"python.exe\")\n} else {\n  file.path(\"..\", \"..\", \".venv\", \"bin\", \"python\")\n}\n\nuse_python(normalizePath(venv_python, mustWork = TRUE), required = TRUE)\n\nA quick check that Python is running from the project’s .venv:\n\nimport sys\nprint(sys.executable)\n\nC:\\Users\\ganiy\\DOCUME~1\\UBC\\DSCI52~1\\Labs\\ABBIEF~1.IO\\VENV~1\\Scripts\\python.exe"
+  },
+  {
+    "objectID": "posts/r-meets-python/index.html#step-1-r-prepare-the-data",
+    "href": "posts/r-meets-python/index.html#step-1-r-prepare-the-data",
+    "title": "Pricing diamonds in two languages",
+    "section": "Step 1 (R): prepare the data",
+    "text": "Step 1 (R): prepare the data\nPrice grows by a steady percentage for every percentage increase in weight, so I work with the logarithms of both. I also pass the clarity grades in their proper order, from worst (I1) to best (IF), so Python does not sort them alphabetically.\n\ndiamonds_model &lt;- diamonds |&gt;\n  transmute(\n    log_price = log(price),\n    log_carat = log(carat),\n    clarity = as.character(clarity)\n  )\n\nclarity_levels &lt;- levels(diamonds$clarity)\n\ndim(diamonds_model)\n\n[1] 53940     3\n\nclarity_levels\n\n[1] \"I1\"   \"SI2\"  \"SI1\"  \"VS2\"  \"VS1\"  \"VVS2\" \"VVS1\" \"IF\""
+  },
+  {
+    "objectID": "posts/r-meets-python/index.html#step-2-python-fit-and-compare-two-models",
+    "href": "posts/r-meets-python/index.html#step-2-python-fit-and-compare-two-models",
+    "title": "Pricing diamonds in two languages",
+    "section": "Step 2 (Python): fit and compare two models",
+    "text": "Step 2 (Python): fit and compare two models\nPython picks up both R objects with r.diamonds_model and r.clarity_levels. It then uses scikit-learn to compare two linear regression models with 5-fold cross-validation: one that uses weight only, and one that uses weight plus clarity.\n\nimport pandas as pd\nfrom sklearn.linear_model import LinearRegression\nfrom sklearn.model_selection import KFold, cross_val_score\n\ndf = r.diamonds_model\ndf[\"clarity\"] = pd.Categorical(df[\"clarity\"], categories=r.clarity_levels)\n\ny = df[\"log_price\"]\nX_size = df[[\"log_carat\"]]\nX_full = pd.get_dummies(\n    df[[\"log_carat\", \"clarity\"]],\n    columns=[\"clarity\"],\n    drop_first=True,\n    dtype=float,\n)\n\nfolds = KFold(n_splits=5, shuffle=True, random_state=42)\nr2_size = float(cross_val_score(LinearRegression(), X_size, y, cv=folds, scoring=\"r2\").mean())\nr2_full = float(cross_val_score(LinearRegression(), X_full, y, cv=folds, scoring=\"r2\").mean())\n\nmodel = LinearRegression().fit(X_full, y)\nslope = float(model.coef_[0])\n\nclarity_effects = pd.DataFrame({\n    \"clarity\": [name.replace(\"clarity_\", \"\") for name in X_full.columns[1:]],\n    \"coefficient\": model.coef_[1:],\n})\n\nprint(f\"R² with weight only:         {r2_size:.3f}\")\n\nR² with weight only:         0.933\n\nprint(f\"R² with weight and clarity:  {r2_full:.3f}\")\n\nR² with weight and clarity:  0.965\n\nclarity_effects\n\n  clarity  coefficient\n0     SI2     0.479658\n1     SI1     0.624558\n2     VS2     0.775248\n3     VS1     0.820461\n4    VVS2     0.979221\n5    VVS1     1.028298\n6      IF     1.114625\n\n\ndrop_first=True leaves out the worst grade, I1, so every clarity coefficient measures the difference from an I1 diamond of the same weight."
+  },
+  {
+    "objectID": "posts/r-meets-python/index.html#step-3-r-turn-the-python-results-into-a-chart",
+    "href": "posts/r-meets-python/index.html#step-3-r-turn-the-python-results-into-a-chart",
+    "title": "Pricing diamonds in two languages",
+    "section": "Step 3 (R): turn the Python results into a chart",
+    "text": "Step 3 (R): turn the Python results into a chart\nR now reads the Python results with py$clarity_effects. Because the model works on log prices, a coefficient b means a price exp(b) times as high, so I convert each one into a percentage premium.\n\nclarity_value &lt;- py$clarity_effects |&gt;\n  mutate(\n    premium = (exp(coefficient) - 1) * 100,\n    clarity = factor(clarity, levels = clarity_levels)\n  )\n\nggplot(clarity_value, aes(x = clarity, y = premium)) +\n  geom_col(fill = \"#c2410c\", width = 0.6) +\n  geom_text(aes(label = sprintf(\"+%.0f%%\", premium)), vjust = -0.4, size = 3.2, colour = \"#333333\") +\n  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +\n  labs(x = \"Clarity (worst to best)\", y = \"Price premium over I1 (%)\") +\n  theme_minimal()\n\n\n\n\n\n\n\nFigure 1: How much more a diamond of each clarity grade costs than an I1 diamond of the same weight. Model fitted in Python with scikit-learn, chart drawn in R with ggplot2.\n\n\n\n\n\nAdding clarity lifts the cross-validated R² from 0.933 to 0.965. Weight still does most of the work, but clarity explains a real share of what is left. Figure 1 shows how much: the value climbs steadily with every grade, and a flawless (IF) diamond costs about 205% more than an I1 diamond of the same weight. That is roughly 3 times the price."
+  },
+  {
+    "objectID": "posts/r-meets-python/index.html#do-the-two-languages-agree",
+    "href": "posts/r-meets-python/index.html#do-the-two-languages-agree",
+    "title": "Pricing diamonds in two languages",
+    "section": "Do the two languages agree?",
+    "text": "Do the two languages agree?\nAs a final check, I fit the same model in R with lm() and compare the weight coefficient with the one Python found.\n\nr_model &lt;- lm(log_price ~ log_carat + factor(clarity, levels = clarity_levels), data = diamonds_model)\n\nknitr::kable(\n  data.frame(\n    Language = c(\"Python (scikit-learn)\", \"R (lm)\"),\n    `Weight coefficient` = c(py$slope, unname(coef(r_model)[\"log_carat\"])),\n    check.names = FALSE\n  ),\n  digits = 4\n)\n\n\n\nTable 1: The weight coefficient from the same model, fitted in each language.\n\n\n\n\n\n\nLanguage\nWeight coefficient\n\n\n\n\nPython (scikit-learn)\n1.8064\n\n\nR (lm)\n1.8064\n\n\n\n\n\n\n\n\nTable 1 shows the two languages give the same answer, as they should. It also shows how the story shifts once clarity is in the model. The weight coefficient rises from about 1.68 (weight alone, in my earlier post) to about 1.81. Big diamonds tend to have lower clarity, so leaving clarity out made size look slightly less valuable than it really is."
+  },
+  {
+    "objectID": "posts/r-meets-python/index.html#what-i-found",
+    "href": "posts/r-meets-python/index.html#what-i-found",
+    "title": "Pricing diamonds in two languages",
+    "section": "What I found",
+    "text": "What I found\n\nOnce weight is held fixed, every step up in clarity adds value, and a flawless diamond is worth about three times as much as an I1 diamond of the same weight.\nClarity adds a real, if smaller, share of explanatory power on top of weight.\nR and Python produced identical estimates on the same data, and passing objects between them took one line each way: r.name in Python and py$name in R."
   }
 ]
