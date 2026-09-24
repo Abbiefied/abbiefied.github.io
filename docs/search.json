@@ -7,55 +7,6 @@
     "text": "Scavenger Hunt at UBC\n\n\nStarting my Master of Data Science at UBC has been an exciting and slightly overwhelming experience. After spending years studying computing and working on projects involving AI and software development, I was looking forward to finally taking a deeper dive into data science. Orientation and the first days of classes made the transition feel much more real, especially seeing the campus, meeting people from different backgrounds, and beginning this new chapter in Vancouver.\nOne of the things that has surprised me most is how quickly the program moves. There is a lot to learn, and even familiar topics can feel different when approached from a data science perspective. My first weeks have already involved working with probability, statistics, programming, and data, and I am learning that understanding the reasoning behind a solution is just as important as getting the code to work.\nI am still finding my rhythm, but I am excited about what lies ahead. I want to become more confident with the mathematical and statistical foundations of data science while continuing to explore machine learning and AI. For now, I am taking things one week at a time and enjoying the process of becoming a data scientist."
   },
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Ganiyat Adekunle",
-    "section": "",
-    "text": "Hi! I am Ganiyat. I am from Nigeria. I am a data science student at the University of British Columbia with a background in computing, artificial intelligence, and fashion entrepreneurship. Before starting my Master of Data Science, I studied Computing at Glasgow Caledonian University, where I developed interests in machine learning, natural language processing, human-computer interaction, and software development."
-  },
-  {
-    "objectID": "about.html",
-    "href": "about.html",
-    "title": "About",
-    "section": "",
-    "text": "My journey has taken me across several different fields and places. I studied Computing at Glasgow Caledonian University, where I developed a strong interest in technology and its potential to solve real-world problems. My studies exposed me to areas such as machine learning, natural language processing, human-computer interaction, software engineering, and data analysis.\nAlongside my academic journey, I have spent several years building a fashion business. What started as an interest in fashion design grew into an entrepreneurial journey that expanded from Nigeria to Mauritius. Running a business taught me lessons that are difficult to learn from a classroom, including how to understand customers, work with limited resources, adapt to uncertainty, and turn ideas into practical solutions.\nOne of the areas where these interests began to overlap was sustainability. The fashion industry produces enormous amounts of textile waste, and I became increasingly interested in how data and technology could help businesses make better decisions and reduce waste."
-  },
-  {
-    "objectID": "about.html#background",
-    "href": "about.html#background",
-    "title": "About",
-    "section": "",
-    "text": "My journey has taken me across several different fields and places. I studied Computing at Glasgow Caledonian University, where I developed a strong interest in technology and its potential to solve real-world problems. My studies exposed me to areas such as machine learning, natural language processing, human-computer interaction, software engineering, and data analysis.\nAlongside my academic journey, I have spent several years building a fashion business. What started as an interest in fashion design grew into an entrepreneurial journey that expanded from Nigeria to Mauritius. Running a business taught me lessons that are difficult to learn from a classroom, including how to understand customers, work with limited resources, adapt to uncertainty, and turn ideas into practical solutions.\nOne of the areas where these interests began to overlap was sustainability. The fashion industry produces enormous amounts of textile waste, and I became increasingly interested in how data and technology could help businesses make better decisions and reduce waste."
-  },
-  {
-    "objectID": "about.html#why-data-science",
-    "href": "about.html#why-data-science",
-    "title": "About",
-    "section": "Why Data Science",
-    "text": "Why Data Science\nMy interest in data science comes from wanting to move beyond simply building technology and understand how data can be used to make better decisions. During my computing studies, projects involving machine learning and AI showed me how computational methods can be applied to complex problems.\nMy final-year project, AdaptEd: Harnessing AI for Multimodal and Personalized Learning, brought several of these interests together. I developed an AI-enhanced learning platform designed to support personalized and multimodal learning in higher education. Working on the project introduced me to recommender systems, natural language processing, retrieval-augmented generation, and multimodal AI, while also teaching me how challenging it can be to turn an idea into a working system.\nAt UBC, I am interested in developing a stronger foundation in statistics, programming, machine learning, and data analysis. I am particularly interested in human-centred AI and in using data science to address problems that have a meaningful social or environmental impact."
-  },
-  {
-    "objectID": "about.html#outside-of-data-science",
-    "href": "about.html#outside-of-data-science",
-    "title": "About",
-    "section": "Outside of Data Science",
-    "text": "Outside of Data Science\nI have always had interests outside technology. Fashion remains an important part of my life, particularly pattern drafting, designing clothes, and thinking about how creativity and technology can work together. I enjoy learning new things online and can easily spend time watching videos about the brain, neuroscience, AI, or an entirely new topic that catches my attention.\nI also enjoy quieter activities. I am more comfortable with a good learning session, a walk, or exploring a new place than with a packed social schedule. Since moving to Vancouver, I am looking forward to discovering more of the city and finding peaceful places where I can walk, reflect, and recharge.\nFor me, data science is not just about algorithms and code. It is another tool for understanding the world, asking better questions, and building solutions that can make a difference."
-  },
-  {
-    "objectID": "blog.html",
-    "href": "blog.html",
-    "title": "Blog",
-    "section": "",
-    "text": "What predicts how diabetes progresses in a year?\n\n\n\n\n\n\n\n\nSep 23, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\n\n\n\n\n\n\n\nWhy do ‘worse’ diamonds cost more?\n\n\n\n\n\n\n\n\nSep 23, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\n\n\n\n\n\n\n\nMy First Weeks in MDS\n\n\n\n\n\n\n\n\nSep 13, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "portfolio.html",
-    "href": "portfolio.html",
-    "title": "Portfolio",
-    "section": "",
-    "text": "AdaptEd\n\n\n\nAdaptEd\nAn AI-enhanced learning platform for personalised and multimodal learning in higher education. The project uses Python for backend services and PHP for Moodle customizations. Machine learning models (SVD, TF-IDF, Random Forest) are used for content recommendations. Natural language processing techniques are employed for the chatbot and content summarization. The facebook/bart-large-cnn model from HuggingFace Transformers is used for text summarization.\nView on GitHub\n\n\n\n\n\n\nPurple Sky Weather App\n\n\n\nPurple Sky\nA a utilitarian weather application targeting users who require minimal weather information for their day-to-day navigation and schedule. The app provides current weather data, a 3-day weather forecast, air quality information, a weather map with weather icon markers and quality data, the ability to compare weather data between two countries, and the option to add a weather widget to the home screen and weather notifications to the notification bar.\nView on GitHub"
-  },
-  {
     "objectID": "posts/diabetes-progression/index.html",
     "href": "posts/diabetes-progression/index.html",
     "title": "What predicts how diabetes progresses in a year?",
@@ -103,6 +54,55 @@
     "title": "What predicts how diabetes progresses in a year?",
     "section": "What I found",
     "text": "What I found\n\nBMI and triglycerides are the strongest early warning signs in this dataset. Higher values at the start go with faster progression over the next year.\nHDL cholesterol works in the opposite direction, with higher levels linked to slower progression.\nTwo measurements get a simple model most of the way. Adding the remaining eight improves the fit only slightly.\nEven the best model explains less than half of the variation. More than half of what separates patients comes from things this dataset does not measure, such as treatment, diet, activity or genetics.\n\nThese are correlations from 442 patients, not causes. They show what tends to go together, not what would happen if a patient changed one number. What the analysis does show is that a couple of routine measurements carry real information about where a patient is heading, and that much of the story still lies outside the data."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Ganiyat Adekunle",
+    "section": "",
+    "text": "Hi! I am Ganiyat. I am from Nigeria. I am a data science student at the University of British Columbia with a background in computing, artificial intelligence, and fashion entrepreneurship. Before starting my Master of Data Science, I studied Computing at Glasgow Caledonian University, where I developed interests in machine learning, natural language processing, human-computer interaction, and software development."
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "My journey has taken me across several different fields and places. I studied Computing at Glasgow Caledonian University, where I developed a strong interest in technology and its potential to solve real-world problems. My studies exposed me to areas such as machine learning, natural language processing, human-computer interaction, software engineering, and data analysis.\nAlongside my academic journey, I have spent several years building a fashion business. What started as an interest in fashion design grew into an entrepreneurial journey that expanded from Nigeria to Mauritius. Running a business taught me lessons that are difficult to learn from a classroom, including how to understand customers, work with limited resources, adapt to uncertainty, and turn ideas into practical solutions.\nOne of the areas where these interests began to overlap was sustainability. The fashion industry produces enormous amounts of textile waste, and I became increasingly interested in how data and technology could help businesses make better decisions and reduce waste."
+  },
+  {
+    "objectID": "about.html#background",
+    "href": "about.html#background",
+    "title": "About",
+    "section": "",
+    "text": "My journey has taken me across several different fields and places. I studied Computing at Glasgow Caledonian University, where I developed a strong interest in technology and its potential to solve real-world problems. My studies exposed me to areas such as machine learning, natural language processing, human-computer interaction, software engineering, and data analysis.\nAlongside my academic journey, I have spent several years building a fashion business. What started as an interest in fashion design grew into an entrepreneurial journey that expanded from Nigeria to Mauritius. Running a business taught me lessons that are difficult to learn from a classroom, including how to understand customers, work with limited resources, adapt to uncertainty, and turn ideas into practical solutions.\nOne of the areas where these interests began to overlap was sustainability. The fashion industry produces enormous amounts of textile waste, and I became increasingly interested in how data and technology could help businesses make better decisions and reduce waste."
+  },
+  {
+    "objectID": "about.html#why-data-science",
+    "href": "about.html#why-data-science",
+    "title": "About",
+    "section": "Why Data Science",
+    "text": "Why Data Science\nMy interest in data science comes from wanting to move beyond simply building technology and understand how data can be used to make better decisions. During my computing studies, projects involving machine learning and AI showed me how computational methods can be applied to complex problems.\nMy final-year project, AdaptEd: Harnessing AI for Multimodal and Personalized Learning, brought several of these interests together. I developed an AI-enhanced learning platform designed to support personalized and multimodal learning in higher education. Working on the project introduced me to recommender systems, natural language processing, retrieval-augmented generation, and multimodal AI, while also teaching me how challenging it can be to turn an idea into a working system.\nAt UBC, I am interested in developing a stronger foundation in statistics, programming, machine learning, and data analysis. I am particularly interested in human-centred AI and in using data science to address problems that have a meaningful social or environmental impact."
+  },
+  {
+    "objectID": "about.html#outside-of-data-science",
+    "href": "about.html#outside-of-data-science",
+    "title": "About",
+    "section": "Outside of Data Science",
+    "text": "Outside of Data Science\nI have always had interests outside technology. Fashion remains an important part of my life, particularly pattern drafting, designing clothes, and thinking about how creativity and technology can work together. I enjoy learning new things online and can easily spend time watching videos about the brain, neuroscience, AI, or an entirely new topic that catches my attention.\nI also enjoy quieter activities. I am more comfortable with a good learning session, a walk, or exploring a new place than with a packed social schedule. Since moving to Vancouver, I am looking forward to discovering more of the city and finding peaceful places where I can walk, reflect, and recharge.\nFor me, data science is not just about algorithms and code. It is another tool for understanding the world, asking better questions, and building solutions that can make a difference."
+  },
+  {
+    "objectID": "blog.html",
+    "href": "blog.html",
+    "title": "Blog",
+    "section": "",
+    "text": "What predicts how diabetes progresses in a year?\n\n\n\n\n\n\n\n\nSep 23, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\n\n\n\n\n\n\n\nWhy do ‘worse’ diamonds cost more?\n\n\n\n\n\n\n\n\nSep 23, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\n\n\n\n\n\n\n\nMy First Weeks in MDS\n\n\n\n\n\n\n\n\nSep 13, 2026\n\n\nGaniyat Adekunle\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "portfolio.html",
+    "href": "portfolio.html",
+    "title": "Portfolio",
+    "section": "",
+    "text": "AdaptEd\n\n\n\nAdaptEd\nAn AI-enhanced learning platform for personalised and multimodal learning in higher education. The project uses Python for backend services and PHP for Moodle customizations. Machine learning models (SVD, TF-IDF, Random Forest) are used for content recommendations. Natural language processing techniques are employed for the chatbot and content summarization. The facebook/bart-large-cnn model from HuggingFace Transformers is used for text summarization.\nView on GitHub\n\n\n\n\n\n\nPurple Sky Weather App\n\n\n\nPurple Sky\nA a utilitarian weather application targeting users who require minimal weather information for their day-to-day navigation and schedule. The app provides current weather data, a 3-day weather forecast, air quality information, a weather map with weather icon markers and quality data, the ability to compare weather data between two countries, and the option to add a weather widget to the home screen and weather notifications to the notification bar.\nView on GitHub"
   },
   {
     "objectID": "posts/diamond-price-paradox/index.html",
