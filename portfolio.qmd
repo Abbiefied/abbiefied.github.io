@@ -21,6 +21,21 @@ The facebook/bart-large-cnn model from HuggingFace Transformers is used for text
 
 <div class="project-card">
 
+![Disaster Risk App](images/disasterrisk.png)
+
+### Disaster Risk App
+
+Streamlit web app that forecasts natural disaster risk across Asian countries using EM-DAT data from 2001 to 2024. An interpretable logistic regression model predicts whether a country-year will have a high number of disasters, measured against that country's own historical median. It uses lagged features such as the previous year's events, deaths, people affected and economic damage. The model is validated with stratified 5-fold cross-validation and a time-based split (trained on 2001–2019, tested on 2020–2024). The app has risk forecasts with next-year projections, the main drivers behind each prediction, country rankings on an interactive map, trend heatmaps and model insights.
+
+<div class="project-links">
+[View live demo](https://disaster-risk-app.streamlit.app/)
+[View on GitHub](https://github.com/Abbiefied/disaster-risk-app)
+</div>
+
+</div>
+
+<div class="project-card">
+
 ![Photo by <a href="https://unsplash.com/@mzudemx?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Maxim Abramov</a> on <a href="https://unsplash.com/photos/street-traffic-lights-on-red-and-orange-GFjyimhomaM?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>](images/traffic.jpg)
 
 ### Accident Predictive Modelling
@@ -56,3 +71,7 @@ A utilitarian weather application targeting users who require minimal weather in
 </div>
 
 </div>
+
+::: {.text-center}
+[View more projects on GitHub](https://github.com/Abbiefied?tab=repositories)
+:::

@@ -16,7 +16,7 @@ One of the areas where these interests began to overlap was sustainability. The 
 
 My interest in data science comes from wanting to move beyond simply building technology and understand how data can be used to make better decisions. During my computing studies, projects involving machine learning and AI showed me how computational methods can be applied to complex problems.
 
-My final-year project, AdaptEd: Harnessing AI for Multimodal and Personalized Learning, brought several of these interests together. I developed an AI-enhanced learning platform designed to support personalized and multimodal learning in higher education. Working on the project introduced me to recommender systems, natural language processing, retrieval-augmented generation, and multimodal AI, while also teaching me how challenging it can be to turn an idea into a working system.
+My undergraduate capstone project, AdaptEd: Harnessing AI for Multimodal and Personalized Learning, brought several of these interests together. I developed an AI-enhanced learning platform designed to support personalized and multimodal learning in higher education. Working on the project introduced me to recommender systems, natural language processing, retrieval-augmented generation, and multimodal AI, while also teaching me how challenging it can be to turn an idea into a working system.
 
 At UBC, I am interested in developing a stronger foundation in statistics, programming, machine learning, and data analysis. I am particularly interested in human-centred AI and in using data science to address problems that have a meaningful social or environmental impact.
 
