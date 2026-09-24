@@ -25,9 +25,10 @@ uv --version
 Rscript --version
 ```
 
-On Windows, run these commands in Git Bash. If you use PowerShell instead, type `R.exe` rather than `R`, because `R` is a built-in PowerShell command.
+On Windows, run these commands in Git Bash. On macOS and Linux, use your normal terminal. If you use PowerShell instead, type `R.exe` rather than `R`, because `R` is a built-in PowerShell command.
 
 ## Build the site
+These steps were tested on Windows with Git Bash, starting from a fresh clone.
 
 Run every command below in a terminal, from the **top level of the repository** (the folder that contains `_quarto.yml`). Quarto has to be started from here so that R finds `.Rprofile` and switches renv on.
 
@@ -97,26 +98,17 @@ Both datasets ship inside packages, so no data files are committed to this repos
 
 You need a network connection only for steps 2 and 3, to download packages from PyPI and CRAN. After that, the site builds offline.
 
-## Repository layout
-
+## Notes for macOS and Linux
+ 
+The commands above work unchanged in the macOS Terminal and on Linux.
+ 
+- **Use R 4.6** if you can. renv installs the exact package versions in `renv.lock`, and ready-made binaries are most likely to be available for the R version I used. With a different R version, some packages may need to be compiled from source.
+- **macOS:** if `renv::restore()` fails with a compiler error, install Apple's command-line developer tools, then run step 3 again:
+```bash
+  xcode-select --install
 ```
-abbiefied.github.io/
-├── _quarto.yml          # site configuration
-├── index.qmd            # home page
-├── about.qmd            # about page
-├── blog.qmd             # blog listing
-├── portfolio.qmd        # portfolio page
-├── styles.css
-├── images/
-├── posts/               # one folder per blog post
-├── pyproject.toml       # Python dependencies (uv)
-├── uv.lock              # exact Python versions (uv)
-├── .python-version      # Python version (uv)
-├── renv.lock            # exact R package versions (renv)
-├── .Rprofile            # switches renv on when R starts here
-├── renv/                # renv's activation script and settings
-└── docs/                # the built site (published by GitHub Pages)
-```
+ 
+- **Linux:** CRAN provides R packages as source code for Linux, so `renv::restore()` compiles them and can take several minutes. You may need your distribution's build tools first (for example, `sudo apt install build-essential` on Ubuntu).
 
 ## Troubleshooting
 
